@@ -11,9 +11,9 @@
 </div>
 
 ## 安装
-    pip install nonebot_plugin_kawaii_robot
+    
 ## 使用
-    nonebot.load_plugin('nonebot_plugin_kawaii_robot')
+    
 ## 其他
 ~~抄~~改编自[nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客api的的智能~障~回复插件
 
