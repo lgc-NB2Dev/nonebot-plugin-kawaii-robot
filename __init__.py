@@ -30,18 +30,26 @@ async def _(event: MessageEvent):
     # 去掉带中括号的内容(去除cq码)
     msg = re.sub(r"\[.*?\]", "", msg)
 
-    # 如果是光艾特bot(没消息返回)或者打招呼的话,就回复以下内容
-    if (not msg) or msg.isspace() or msg in hello__bot:
+    
+    # 如果是光艾特bot(没消息返回)，就回复以下内容
+    if (not msg) or msg.isspace():
         if leaf.leaf_reply_type == 0:
             await ai.finish(Message(random.choice(hello__reply)))
         else:
             await ai.finish()
+
+    # 如果是打招呼的话，就回复以下内容
+    if  msg in hello__bot:
+        await ai.finish(Message(random.choice(hello__reply)))
 
     # 获取用户nickname
     if isinstance(event, GroupMessageEvent):
         nickname = event.sender.card or event.sender.nickname
     else:
         nickname = event.sender.nickname
+
+    if len(nickname) > 10:
+        nickname = nickname[:2] + random.choice(["酱","亲","ちゃん","同志","老师"])
 
     # 从字典里获取结果
     result = await get_chat_result2(msg,  nickname)
