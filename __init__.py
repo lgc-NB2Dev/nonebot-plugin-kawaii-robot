@@ -4,14 +4,23 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
     MessageEvent,
+    MessageSegment,
     PokeNotifyEvent,
 )
+import nonebot
+import asyncio
+
 from .utils import *
+from .config import Config
+
+# 为上面不做阻断的at触发提供全局配置开关
+global_config = nonebot.get_driver().config
+leaf = Config.parse_obj(global_config.dict())
 
 # 优先级99, 条件: 艾特bot就触发
-ai = on_message(rule=to_me(), priority=99,block=False)
-# 优先级1, 不会向下阻断, 条件: 戳一戳bot触发
-poke_ = on_notice(rule=to_me(),block=False)
+ai = on_message(rule=to_me(), priority=99, block=False)
+# 优先级10, 不会向下阻断, 条件: 戳一戳bot触发
+poke_ = on_notice(rule=to_me(), priority=10, block=False)
 
 
 @ai.handle()
@@ -23,7 +32,10 @@ async def _(event: MessageEvent):
 
     # 如果是光艾特bot(没消息返回)或者打招呼的话,就回复以下内容
     if (not msg) or msg.isspace() or msg in hello__bot:
-        await ai.finish(Message(random.choice(hello__reply)))
+        if leaf.leaf_reply_type == 0:
+            await ai.finish(Message(random.choice(hello__reply)))
+        else:
+            await ai.finish()
 
     # 获取用户nickname
     if isinstance(event, GroupMessageEvent):
@@ -44,6 +56,10 @@ async def _(event: MessageEvent):
 
 @poke_.handle()
 async def _poke_event(event: PokeNotifyEvent):
-    if event.is_tome:        
-        # 随机回复poke__reply的内容
-        await poke_.send(Message(random.choice(poke__reply)))
+    if event.is_tome:
+        if random.randint(1,leaf.leaf_poke_rand) == 1:
+            await poke_.finish(Message(random.choice(poke__reply)))
+        else:
+            poke_msg = f'[CQ:poke,qq={event.user_id}]'
+            await asyncio.sleep(1.0)
+            await poke_.finish(Message(poke_msg))
