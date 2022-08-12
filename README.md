@@ -22,8 +22,13 @@ __注意：词库要符合json格式 如果报解码错误先检查自己的词�
 ### 词库格式
 
 参考[Kyomotoi / AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus)
-
-    {"key":[value]} # json格式字典，键是字符串，值是列表
+json字典格式，键是字符串，值是列表
+    
+    {
+        "key":[
+            "value"
+            ]
+    }
     
 ## 安装
     pip install nonebot_plugin_kawaii_robot
