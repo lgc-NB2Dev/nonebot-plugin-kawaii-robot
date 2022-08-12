@@ -9,13 +9,18 @@
 
 
 </div>
+
 ## 个性化词库
+
 把你自己的词库（json文件）扔到resource文件夹里就可以加载啦！
 可以加载多个json文件。
 如果扔进了奇怪的东西~~不要把奇怪的东西扔进资源里呀kora~~大概会加载失败，然后。。。继续加载下一个文件，不会影响到加载的其他词库。
 顺便一提，自己的词库是最优先的。
+
 __注意：词库要符合json格式 如果报解码错误先检查自己的词库是不是 无 BOM 的 UTF-8 编码格式__
+
 ### 词库格式
+
 参考[Kyomotoi / AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus)
     {"key":[value]} # 字典，键是字符串，值是列表
 ## 安装
