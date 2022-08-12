@@ -51,16 +51,20 @@ async def _(event: MessageEvent):
     if len(nickname) > 10:
         nickname = nickname[:2] + random.choice(["酱","亲","ちゃん","同志","老师"])
 
-    # 从字典里获取结果
-    result = await get_chat_result2(msg,  nickname)
+    # 从个人字典里获取结果（优先）
+    result = await get_chat_result_my(msg,  nickname)
     if result != None:
         await ai.finish(Message(result))
-    else:
-        result = await get_chat_result(msg,  nickname)# 从备用字典里获取结果
-        if result != None:
-            await ai.finish(Message(result))
-        else:
-            await ai.finish(Message(random.choice(cant__reply)))# 随机回复cant__reply的内容
+    # 从LeafThesaurus里获取结果
+    result = await get_chat_result_leaf(msg,  nickname)
+    if result != None:
+        await ai.finish(Message(result))
+    # 从AnimeThesaurus里获取结果
+    result = await get_chat_result(msg,  nickname)
+    if result != None:
+        await ai.finish(Message(result))
+    # 随机回复cant__reply的内容
+    await ai.finish(Message(random.choice(cant__reply)))
 
 @poke_.handle()
 async def _poke_event(event: PokeNotifyEvent):
