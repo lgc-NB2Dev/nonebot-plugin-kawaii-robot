@@ -1,12 +1,14 @@
 from nonebot.plugin.on import on_message,on_notice
 from nonebot.rule import to_me
 from nonebot.adapters.onebot.v11 import (
+    GROUP,
     GroupMessageEvent,
     Message,
     MessageEvent,
     MessageSegment,
     PokeNotifyEvent,
 )
+
 import nonebot
 import asyncio
 
@@ -17,8 +19,15 @@ from .config import Config
 global_config = nonebot.get_driver().config
 leaf = Config.parse_obj(global_config.dict())
 
+# 权限判断
+if leaf.leaf_permission == "GROUP":
+    permission = GROUP
+else:
+    permission = None
+
+
 # 优先级99, 条件: 艾特bot就触发
-ai = on_message(rule=to_me(), priority=99, block=False)
+ai = on_message(rule=to_me(), permission = permission, priority=99, block=False)
 # 优先级10, 不会向下阻断, 条件: 戳一戳bot触发
 poke_ = on_notice(rule=to_me(), priority=10, block=False)
 
@@ -29,7 +38,6 @@ async def _(event: MessageEvent):
     msg = str(event.get_message())
     # 去掉带中括号的内容(去除cq码)
     msg = re.sub(r"\[.*?\]", "", msg)
-
     
     # 如果是光艾特bot(没消息返回)，就回复以下内容
     if (not msg) or msg.isspace():
