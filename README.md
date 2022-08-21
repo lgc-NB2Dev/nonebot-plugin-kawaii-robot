@@ -43,6 +43,7 @@ json字典格式，键是字符串，值是列表
     # nonebot_plugin_kawaii_robot
     LEAF_REPLY_TYPE = 0 #配置仅at回复，如果是0则正常回复，1则关闭回复
     LEAF_POKE_RAND = 5  #配置戳一戳回复文字概率，例如 1就是每次戳一戳都回复文字，5就是1/5概率回复文字，4/5概率戳回去。
+    LEAF_PERMISSION = "ALL" #配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。
 
 ## 其他
 ~~抄~~改编自[nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客api的的智能~障~回复插件
