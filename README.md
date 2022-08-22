@@ -41,9 +41,63 @@ json字典格式，键是字符串，值是列表
     nonebot.load_plugin('nonebot_plugin_kawaii_robot') 
 ## 配置
     # nonebot_plugin_kawaii_robot
-    LEAF_REPLY_TYPE = 0 # 配置仅at回复，如果是0则正常回复，1则关闭回复
-    LEAF_POKE_RAND = 5  # 配置戳一戳回复文字概率，例如 1就是每次戳一戳都回复文字，5就是1/5概率回复文字，4/5概率戳回去。
-    LEAF_PERMISSION = "ALL" # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。
+    LEAF_PERMISSION = "ALL" # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。    
+    LEAF_REPLY_TYPE = 2 # 配置at回复
+    LEAF_POKE_RAND = 5  # 配置戳一戳回复文字概率
+    LEAF_REPEATER_LIMIT = [3,6] # 配置复读次数
+    LEAF_INTERRUPT = 6 # 配置打断概率
+
+****
+
+`LEAF_PERMISSION` __配置回复权限__
+
+`"ALL"` 全部聊天
+
+`"GROUP"` 仅群聊。
+
+****
+
+`LEAF_REPLY_TYPE` __配置at回复__
+
+`-1` 关闭全部at回复
+
+`0` 仅启用字典
+
+`1` 关闭仅at回复（启用字典和不明白的回复）
+
+`2` 开启所有回复
+
+****
+  
+`LEAF_POKE_RAND` __配置戳一戳回复__
+
+`-1` 关闭戳一戳回复
+
+`0` 戳一戳回复戳一戳
+
+`1` 戳一戳回复文字
+
+`5` 戳一戳回复文字概率（5就是1/5概率回复文字，4/5概率戳回去）
+
+****
+
+`LEAF_REPEATER_LIMIT` __配置复读次数__
+
+`[3,6]` 群内复读3~6次数后触发复读或打断
+
+****
+
+`LEAF_INTERRUPT` __配置打断概率__
+
+`-1` 关闭复读/打断
+
+`0` 全部复读
+
+`1` 全部打断
+
+`6` 配置打断概率（6就是1/6概率复读，5/6概率打断）
+
+****
 
 ## 其他
 ~~抄~~改编自[nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客api的的智能~障~回复插件
