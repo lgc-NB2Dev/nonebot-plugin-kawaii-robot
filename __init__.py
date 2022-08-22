@@ -107,8 +107,6 @@ repeater_times = {}
 
 repeater = on_message(permission=GROUP, priority=10, block=False)
 
-interrupt_msg = ["打断！","打断复读！","[CQ:face,id=212]","[CQ:face,id=318][CQ:face,id=318]","[CQ:face,id=181]"]
-
 @repeater.handle()
 async def _(event: GroupMessageEvent):
     if interrupt > -1:
@@ -123,7 +121,7 @@ async def _(event: GroupMessageEvent):
             repeater_times[group_id] = random.randint(repeater_limit[0], repeater_limit[1]) - 1
             msg_times[group_id] += repeater_limit[1]
             if interrupt == 0:
-                await repeater.finish(random.choice(interrupt_msg))
+                await repeater.finish(event.message)
             else:
                 if random.randint(1,interrupt) == 1:
                     await repeater.finish(random.choice(interrupt_msg))

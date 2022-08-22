@@ -10,7 +10,7 @@ except ModuleNotFoundError:
 
 from httpx import AsyncClient
 from pathlib import Path
-from nonebot.adapters.onebot.v11 import Message
+from nonebot.adapters.onebot.v11 import Message, MessageSegment
 from nonebot.log import logger
 
 Bot_NICKNAME: str = list(nonebot.get_driver().config.nickname)[0]      # bot的nickname,可以换成你自己的
@@ -108,9 +108,9 @@ cant__reply = [
 interrupt_msg = [
     "打断！",
     "打断复读！",
-    "[CQ:face,id=212]",
-    "[CQ:face,id=318][CQ:face,id=318]",
-    "[CQ:face,id=181]"
+    MessageSegment.face(212),
+    MessageSegment.face(318) + MessageSegment.face(318),
+    MessageSegment.face(181),
 ]
 
 async def get_chat_result_my(text: str, nickname: str) -> str:
