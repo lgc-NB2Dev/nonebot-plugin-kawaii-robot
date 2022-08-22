@@ -10,6 +10,16 @@
 
 </div>
 
+本插件更新到3.0版本，配置项较2.x前有改动，建议升级后重新配置。
+
+## 群聊复读姬
+
+现在可以复读啦！~~谁不喜欢+1呢~~
+
+当然也可以打断复读...~~谁不喜欢打断复读呢~~
+
+具体详见配置条目
+
 ## 个性化词库
 
 把你自己的词库（json文件）扔到resource文件夹里就可以加载啦！
@@ -77,7 +87,7 @@ json字典格式，键是字符串，值是列表
 
 `1` 戳一戳回复文字
 
-`5` 戳一戳回复文字概率（5就是1/5概率回复文字，4/5概率戳回去）
+`5` 配置戳一戳回复文字概率（5就是1/5概率回复文字，4/5概率戳回去）
 
 ****
 
@@ -100,8 +110,11 @@ json字典格式，键是字符串，值是列表
 ****
 
 ## 其他
+
 ~~抄~~改编自[nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客api的的智能~障~回复插件
 
-~~所以是因为青云客私货太多于是咱删了api重新发了一个qwq~~
+复读姬~~抄袭~~借鉴自[nonebot_plugin_repeater](https://github.com/ninthseason/nonebot-plugin-repeater)：群聊复读机
 
-源里的leaf.json是咱自制的bot的词库   ~~WARMING：高二次元浓度警告~~
+源里的leaf.json是咱自制的bot的词库
+
+__WARMING：高二次元浓度警告__
