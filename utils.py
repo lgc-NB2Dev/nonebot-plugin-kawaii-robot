@@ -1,5 +1,3 @@
-
-
 import os
 import re
 import random
@@ -9,9 +7,10 @@ try:
     import ujson as json
 except ModuleNotFoundError:
     import json
+
 from httpx import AsyncClient
 from pathlib import Path
-
+from nonebot.adapters.onebot.v11 import Message
 from nonebot.log import logger
 
 Bot_NICKNAME: str = list(nonebot.get_driver().config.nickname)[0]      # bot的nickname,可以换成你自己的
@@ -105,27 +104,64 @@ cant__reply = [
     "没有理解呢...",
 ]
 
-# 从个人词库里返还消息
+# 打断复读
+interrupt_msg = [
+    "打断！",
+    "打断复读！",
+    "[CQ:face,id=212]",
+    "[CQ:face,id=318][CQ:face,id=318]",
+    "[CQ:face,id=181]"
+]
+
 async def get_chat_result_my(text: str, nickname: str) -> str:
+    '''
+    从个人词库里返还消息
+    '''
     if len(text) < 70:
         keys = MyThesaurus.keys()
         for key in keys:
             if text.find(key) != -1:
                 return random.choice(MyThesaurus[key]).replace("你", nickname)
 
-# 从LeafThesaurus里返还消息
 async def get_chat_result_leaf(text: str, nickname: str) -> str:
+    '''
+    从LeafThesaurus里返还消息
+    '''
     if len(text) < 70:
         keys = LeafThesaurus.keys()
         for key in keys:
             if text.find(key) != -1:
                 return random.choice(LeafThesaurus[key]).replace("name", nickname)
 
-# 从AnimeThesaurus里返还消息
 async def get_chat_result(text: str, nickname: str) -> str:
+    '''
+    从AnimeThesaurus里返还消息
+    '''
     if len(text) < 70:
         keys = AnimeThesaurus.keys()
         for key in keys:
             if text.find(key) != -1:
                 return random.choice(AnimeThesaurus[key]).replace("你", nickname)
+
+def is_CQ_Code(msg:str) -> bool:
+    '''
+    判断参数是否为CQ码
+    '''
+    if len(msg) > 4 and msg[0] == '[' and msg[1:4] == "CQ:" and msg[-1] == ']':
+        return True
+    else:
+        return False
+
+def messagePreprocess(msg: Message):
+    '''
+    对CQ码返回文件名（主要是处理CQ:image）
+    '''
+    msg = str(msg)
+    if is_CQ_Code(msg):
+        data = msg.split(',')
+        for i in range(len(data)):
+            if "file=" in data[i]:
+                return data[i]
+
+    return msg
 
