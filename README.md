@@ -51,11 +51,11 @@ json字典格式，键是字符串，值是列表
     nonebot.load_plugin('nonebot_plugin_kawaii_robot') 
 ## 配置
     # nonebot_plugin_kawaii_robot
-    LEAF_PERMISSION = "ALL" # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。    
-    LEAF_REPLY_TYPE = 2 # 配置at回复
-    LEAF_POKE_RAND = 5  # 配置戳一戳回复文字概率
+    LEAF_PERMISSION = "ALL"     # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。    
+    LEAF_REPLY_TYPE = 2         # 配置at回复
+    LEAF_POKE_RAND = 5          # 配置戳一戳回复文字概率
     LEAF_REPEATER_LIMIT = [3,6] # 配置复读次数
-    LEAF_INTERRUPT = 6 # 配置打断概率
+    LEAF_INTERRUPT = 6          # 配置打断概率
 
 ****
 
