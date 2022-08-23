@@ -26,10 +26,12 @@ repeater_limit = leaf.leaf_repeater_limit
 interrupt = leaf.leaf_interrupt
 
 # 配置合法检测
+
 if repeater_limit[0] < 2 or repeater_limit[0] > repeater_limit[1]:
     raise Exception('config error: repeater_limit')
 
 # 权限判断
+
 if leaf.leaf_permission == "GROUP":
     permission = GROUP
 else:
@@ -37,11 +39,11 @@ else:
 
 # 优先级99，条件：艾特bot就触发
 
-ai = on_message(rule = to_me(), permission = permission, priority=99, block=False)
+if reply_type > -1:
+    ai = on_message(rule = to_me(), permission = permission, priority=99, block=False)
 
-@ai.handle()
-async def _(event: MessageEvent):
-    if reply_type > -1:
+    @ai.handle()
+    async def _(event: MessageEvent):
         # 获取消息文本
         msg = str(event.get_message())
         # 去掉带中括号的内容(去除cq码)
@@ -81,35 +83,34 @@ async def _(event: MessageEvent):
 
 # 优先级10，不会向下阻断，条件：戳一戳bot触发
 
-poke_ = on_notice(rule = to_me(), priority=10, block=False)
+if poke_rand > -1:
+    poke_ = on_notice(rule = to_me(), priority=10, block=False)
 
-@poke_.handle()
-async def _poke_event(event: PokeNotifyEvent):
-    if poke_rand > -1 and event.is_tome:
-        if poke_rand == 0:
-            await asyncio.sleep(1.0)
-            await poke_.finish(Message(f'[CQ:poke,qq={event.user_id}]'))
-        else:
-            if random.randint(1,poke_rand) == 1:
-                await asyncio.sleep(1.0)
-                await poke_.finish(Message(random.choice(poke__reply)))
-            else:
+    @poke_.handle()
+    async def _poke_event(event: PokeNotifyEvent):
+        if event.is_tome:
+            if poke_rand == 0:
                 await asyncio.sleep(1.0)
                 await poke_.finish(Message(f'[CQ:poke,qq={event.user_id}]'))
-
-
+            else:
+                if random.randint(1,poke_rand) == 1:
+                    await asyncio.sleep(1.0)
+                    await poke_.finish(Message(random.choice(poke__reply)))
+                else:
+                    await asyncio.sleep(1.0)
+                    await poke_.finish(Message(f'[CQ:poke,qq={event.user_id}]'))
 
 # 打断/复读姬
 
-msg_last = {}
-msg_times = {}
-repeater_times = {}
+if interrupt > -1:
+    repeater = on_message(permission=GROUP, priority=10, block=False)
 
-repeater = on_message(permission=GROUP, priority=10, block=False)
+    msg_last = {}
+    msg_times = {}
+    repeater_times = {}
 
-@repeater.handle()
-async def _(event: GroupMessageEvent):
-    if interrupt > -1:
+    @repeater.handle()
+    async def _(event: GroupMessageEvent):
         global msg_last, msg_times,repeater_times,repeater_flag
         group_id = event.group_id
         repeater_times.setdefault(group_id,random.randint(repeater_limit[0], repeater_limit[1]) - 1)
