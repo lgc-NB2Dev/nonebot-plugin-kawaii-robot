@@ -123,7 +123,7 @@ json字典格式，键是字符串，值是列表
 
 改编~~抄~~自[nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客api的的智能~障~回复插件
 
-复读姬借鉴~~抄袭~~自[nonebot_plugin_repeater](https://github.com/ninthseason/nonebot-plugin-repeater)：群聊复读机
+复读姬借鉴~~抄~~自[nonebot_plugin_repeater](https://github.com/ninthseason/nonebot-plugin-repeater)：群聊复读机
 
 源里的leaf.json是咱自制的bot的词库
 
