@@ -45,14 +45,6 @@ json字典格式，键是字符串，值是列表
             ]
     }
 
-
-## 忽略词
-
-指令以`LEAF_IGNORE`中的元素开头不会触发回复。
-
-    # 例如无视 .指令 #指令 
-    LEAF_IGNORE = [".","#"]
-
 ## 安装
     pip install nonebot_plugin_kawaii_robot
 ## 使用
@@ -73,6 +65,15 @@ json字典格式，键是字符串，值是列表
 `"ALL"` 全部聊天
 
 `"GROUP"` 仅群聊。
+
+****
+`LEAF_IGNORE` __忽略词__
+
+指令以`LEAF_IGNORE`中的元素开头不会触发回复。
+元素为str
+
+    # 忽略 .指令 #指令 你好
+    LEAF_IGNORE = [".","#","你好"]
 
 ****
 
