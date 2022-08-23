@@ -44,14 +44,23 @@ json字典格式，键是字符串，值是列表
             "value"
             ]
     }
-    
+
+
+## 忽略词
+
+指令以`LEAF_IGNORE`中的元素开头不会触发回复。
+
+    # 例如无视 .指令 #指令 
+    LEAF_IGNORE = [".","#"]
+
 ## 安装
     pip install nonebot_plugin_kawaii_robot
 ## 使用
     nonebot.load_plugin('nonebot_plugin_kawaii_robot') 
 ## 配置
     # nonebot_plugin_kawaii_robot
-    LEAF_PERMISSION = "ALL"     # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。    
+    LEAF_PERMISSION = "ALL"     # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。
+    LEAF_IGNORE = []            # 配置忽略项，元素为str。
     LEAF_REPLY_TYPE = 2         # 配置at回复
     LEAF_POKE_RAND = 5          # 配置戳一戳回复文字概率
     LEAF_REPEATER_LIMIT = [3,6] # 配置复读次数
