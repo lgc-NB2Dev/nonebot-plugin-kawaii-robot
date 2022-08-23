@@ -25,6 +25,8 @@ poke_rand = leaf.leaf_poke_rand
 repeater_limit = leaf.leaf_repeater_limit
 interrupt = leaf.leaf_interrupt
 
+ignore = leaf.leaf_ignore
+
 # 配置合法检测
 
 if repeater_limit[0] < 2 or repeater_limit[0] > repeater_limit[1]:
@@ -57,6 +59,10 @@ if reply_type > -1:
         # 如果是打招呼的话，就回复以下内容
         if  msg in hello__bot:
             await ai.finish(Message(random.choice(hello__reply)))
+        # 如果是已配置的忽略项，直接结束事件
+        for i in range(len(ignore)):
+            if msg.startswith(ignore[i]):
+                await ai.finish()
         # 获取用户nickname
         if isinstance(event, GroupMessageEvent):
             nickname = event.sender.card or event.sender.nickname
