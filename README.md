@@ -52,7 +52,7 @@ json字典格式，键是字符串，值是列表
 ## 配置
     # nonebot_plugin_kawaii_robot
     LEAF_PERMISSION = "ALL"     # 配置回复权限，"ALL"就是全部聊天都会触发回复，"GROUP"就是仅群聊。
-    LEAF_IGNORE = []            # 配置忽略项，元素为str。
+    LEAF_IGNORE = []            # 配置忽略词，元素为str。
     LEAF_REPLY_TYPE = 2         # 配置at回复
     LEAF_POKE_RAND = 5          # 配置戳一戳回复文字概率
     LEAF_REPEATER_LIMIT = [3,6] # 配置复读次数
@@ -67,12 +67,12 @@ json字典格式，键是字符串，值是列表
 `"GROUP"` 仅群聊。
 
 ****
-`LEAF_IGNORE` __忽略词__
+`LEAF_IGNORE` __配置忽略词__
 
 指令以`LEAF_IGNORE`中的元素开头不会触发回复。
 元素为str
 
-    # 忽略 .指令 #指令 你好
+    # 例如忽略 .指令 #指令 你好
     LEAF_IGNORE = [".","#","你好"]
 
 ****
