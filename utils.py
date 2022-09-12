@@ -159,9 +159,8 @@ def messagePreprocess(msg: Message):
     msg = str(msg)
     if is_CQ_Code(msg):
         data = msg.split(',')
-        for i in range(len(data)):
-            if "file=" in data[i]:
-                return data[i]
-
+        for x in data:
+            if "file=" in x:
+                return x
     return msg
 
