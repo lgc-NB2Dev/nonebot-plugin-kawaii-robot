@@ -1,17 +1,18 @@
-import os
-import re
-import random
+from nonebot.adapters.onebot.v11 import Message, MessageSegment
+from pathlib import Path
+
 import nonebot
+import os
+import random
+
+from nonebot.log import logger
 
 try:
     import ujson as json
 except ModuleNotFoundError:
     import json
 
-from httpx import AsyncClient
-from pathlib import Path
-from nonebot.adapters.onebot.v11 import Message, MessageSegment
-from nonebot.log import logger
+
 
 Bot_NICKNAME: str = list(nonebot.get_driver().config.nickname)[0]      # bot的nickname,可以换成你自己的
 Bot_MASTER: str = list(nonebot.get_driver().config.superusers)[0]      # bot的主人名称,也可以换成你自己的
@@ -93,7 +94,7 @@ poke__reply = [
 ]
 
 # 不明白的消息
-cant__reply = [
+unknow_reply = [
     f"{Bot_NICKNAME}不懂...",
     "呜喵？",
     "没有听懂喵...",
@@ -113,35 +114,15 @@ interrupt_msg = [
     MessageSegment.face(181),
 ]
 
-async def get_chat_result_my(text: str, nickname: str) -> str:
-    '''
-    从个人词库里返还消息
-    '''
-    if len(text) < 70:
-        keys = MyThesaurus.keys()
+def get_chat_result(resource:dict, text: str) -> str:
+    """
+    从 resource 中获取回应
+    """
+    if len(text) < 21:
+        keys = resource.keys()
         for key in keys:
             if text.find(key) != -1:
-                return random.choice(MyThesaurus[key]).replace("你", nickname)
-
-async def get_chat_result_leaf(text: str, nickname: str) -> str:
-    '''
-    从LeafThesaurus里返还消息
-    '''
-    if len(text) < 70:
-        keys = LeafThesaurus.keys()
-        for key in keys:
-            if text.find(key) != -1:
-                return random.choice(LeafThesaurus[key]).replace("name", nickname)
-
-async def get_chat_result(text: str, nickname: str) -> str:
-    '''
-    从AnimeThesaurus里返还消息
-    '''
-    if len(text) < 70:
-        keys = AnimeThesaurus.keys()
-        for key in keys:
-            if text.find(key) != -1:
-                return random.choice(AnimeThesaurus[key]).replace("你", nickname)
+                return random.choice(resource[key])
 
 def is_CQ_Code(msg:str) -> bool:
     '''
@@ -163,4 +144,3 @@ def messagePreprocess(msg: Message):
             if "file=" in x:
                 return x
     return msg
-
