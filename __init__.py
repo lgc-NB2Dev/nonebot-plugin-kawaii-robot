@@ -91,6 +91,11 @@ if reply_type > -1:
         if result := get_chat_result(MyThesaurus, msg):
             await talk.finish(Message(result))
 
+        result = get_chat_result(MyThesaurus, msg)
+        if result:
+            await talk.finish(Message(result))
+
+
         # 从 LeafThesaurus 里获取结果
         if result := get_chat_result(LeafThesaurus,msg):
             await talk.finish(Message(result.replace("name", nickname)))
@@ -114,7 +119,7 @@ if poke_rand > -1:
                 await asyncio.sleep(1.0)
                 await poke_.finish(Message(f'[CQ:poke,qq={event.user_id}]'))
             else:
-                if random.randint(1,poke_rand) == 1:
+                if random.randint(1,100) <= poke_rand:
                     await asyncio.sleep(1.0)
                     await poke_.finish(Message(random.choice(poke__reply)))
                 else:
@@ -124,30 +129,34 @@ if poke_rand > -1:
 # 打断/复读姬
 
 if interrupt > -1:
-    repeater = on_message(permission=GROUP, priority=10, block=False)
-
+    global msg_last,msg_times,repeater_times
     msg_last = {}
     msg_times = {}
     repeater_times = {}
 
-    @repeater.handle()
-    async def _(event: GroupMessageEvent):
-        global msg_last, msg_times,repeater_times,repeater_flag
+    async def repeat(event: GroupMessageEvent) -> bool:
+        global msg_last, msg_times,repeater_times
         group_id = event.group_id
-        repeater_times.setdefault(group_id,random.randint(repeater_limit[0], repeater_limit[1]) - 1)
         msg = messagePreprocess(event.message)
-        if msg_last.get(group_id) != msg:
+        if msg_last.get(group_id) == msg:
+            repeater_times.setdefault(group_id,random.randint(repeater_limit[0], repeater_limit[1]))
+            msg_times[group_id] += 1
+            if msg_times[group_id] == repeater_times[group_id]:
+                repeater_times[group_id] = random.randint(repeater_limit[0], repeater_limit[1])
+                msg_times[group_id] += repeater_limit[1]
+                return True
+            else:
+                return False
+        else:
             msg_last[group_id] = msg
             msg_times[group_id] = 1
-        elif msg_times[group_id] == repeater_times[group_id]:
-            repeater_times[group_id] = random.randint(repeater_limit[0], repeater_limit[1]) - 1
-            msg_times[group_id] += repeater_limit[1]
-            if interrupt == 0:
-                await repeater.finish(event.message)
-            else:
-                if random.randint(1,interrupt) == 1:
-                    await repeater.finish(random.choice(interrupt_msg))
-                else:
-                    await repeater.finish(event.message)
+            return False
+
+    repeater = on_message(rule=repeat, permission=GROUP, priority=99, block=False)
+
+    @repeater.handle()
+    async def _(event: GroupMessageEvent):
+        if random.randint(1,100) <= interrupt:
+            await repeater.finish(random.choice(interrupt_msg))
         else:
-            msg_times[group_id] += 1
+            await repeater.finish(event.message)
