@@ -58,7 +58,7 @@ json字典格式，键是字符串，值是列表
     LEAF_REPEATER_LIMIT = [2,6] # 配置复读次数
     LEAF_INTERRUPT = 20         # 配置打断概率
     LEAF_MATCH_PATTERN = 1      # 配置匹配模式,0是精确匹配,1是关键词匹配
-    LEAF_AT_MOD = 1             # 配置是否需要@bot,0是需要@,1是不需要
+    LEAF_AT_MOD = 0             # 配置是否需要to_me,0是需要,1是不需要
 
 ****
 
