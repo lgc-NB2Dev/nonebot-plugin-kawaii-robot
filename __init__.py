@@ -41,6 +41,9 @@ interrupt = leaf.leaf_interrupt
 
 ignore = leaf.leaf_ignore
 
+match_pattern = leaf.leaf_match_pattern
+at_mod = leaf.leaf_at_mod
+
 # 配置合法检测
 
 if repeater_limit[0] < 2 or repeater_limit[0] > repeater_limit[1]:
@@ -56,7 +59,8 @@ else:
 # 优先级99，条件：艾特bot就触发
 
 if reply_type > -1:
-    talk = on_message(rule = to_me(), permission = permission, priority=99, block=False)
+    talk = on_message(rule=to_me() if at_mod == 0 else None,
+                      permission=permission, priority=99, block=False)
 
     @talk.handle()
     async def _(event: MessageEvent):
@@ -67,10 +71,11 @@ if reply_type > -1:
 
         # 如果是光艾特bot(没消息返回)，就回复以下内容
         if (not msg) or msg.isspace():
-            await talk.finish(Message(random.choice(hello__reply)))
+            if at_mod == 0:
+                await talk.finish(Message(random.choice(hello__reply)))
 
         # 如果是打招呼的话，就回复以下内容
-        if  msg in hello__bot:
+        if msg in hello__bot:
             await talk.finish(Message(random.choice(hello__reply)))
 
         # 如果是已配置的忽略项，直接结束事件
@@ -85,27 +90,27 @@ if reply_type > -1:
             nickname = event.sender.nickname
 
         if len(nickname) > 10:
-            nickname = nickname[:2] + random.choice(["酱","亲","ちゃん","同志","老师"])
+            nickname = nickname[:2] + \
+                random.choice(["酱", "亲", "ちゃん", "同志", "老师"])
 
         # 从个人字典里获取结果
-        if result := get_chat_result(MyThesaurus, msg):
+        if result := get_chat_result(MyThesaurus, msg, match_pattern):
             await talk.finish(Message(result))
 
-        result = get_chat_result(MyThesaurus, msg)
+        result = get_chat_result(MyThesaurus, msg, match_pattern)
         if result:
             await talk.finish(Message(result))
 
-
         # 从 LeafThesaurus 里获取结果
-        if result := get_chat_result(LeafThesaurus,msg):
+        if result := get_chat_result(LeafThesaurus, msg, match_pattern):
             await talk.finish(Message(result.replace("name", nickname)))
 
         # 从 AnimeThesaurus 里获取结果
-        if result := get_chat_result(AnimeThesaurus,msg):
+        if result := get_chat_result(AnimeThesaurus, msg, match_pattern):
             await talk.finish(Message(result.replace("你", nickname)))
 
         # 不明白的内容
-        if reply_type == 1:
+        if at_mod == 0 and reply_type == 1:
             await talk.finish(Message(random.choice(unknow_reply)))
 
 # 优先级10，不会向下阻断，条件：戳一戳bot触发
