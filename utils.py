@@ -114,15 +114,20 @@ interrupt_msg = [
     MessageSegment.face(181),
 ]
 
-def get_chat_result(resource:dict, text: str) -> str:
+
+def get_chat_result(resource: dict, text: str, match_pattern: int) -> str:
     """
     从 resource 中获取回应
     """
     if len(text) < 21:
         keys = resource.keys()
         for key in keys:
-            if text.find(key) != -1:
-                return random.choice(resource[key])
+            if match_pattern == 0:
+                if text == key:
+                    return random.choice(resource[key])
+            elif match_pattern == 1:
+                if text.find(key) != -1:
+                    return random.choice(resource[key])
 
 def is_CQ_Code(msg:str) -> bool:
     '''
