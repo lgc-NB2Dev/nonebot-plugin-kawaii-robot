@@ -57,7 +57,7 @@ json字典格式，键是字符串，值是列表
     LEAF_POKE_RAND = 20         # 配置戳一戳回复文字概率
     LEAF_REPEATER_LIMIT = [2,6] # 配置复读次数
     LEAF_INTERRUPT = 20         # 配置打断概率
-    LEAF_MATCH_PATTERN = 0      # 配置匹配模式,0是完整匹配,1是普通匹配
+    LEAF_MATCH_PATTERN = 1      # 配置匹配模式,0是精确匹配,1是关键词匹配
     LEAF_AT_MOD = 1             # 配置是否需要@bot,0是需要@,1是不需要
 
 ****
