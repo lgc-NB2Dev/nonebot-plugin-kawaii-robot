@@ -18,8 +18,7 @@ from .utils import (
     MyThesaurus,
     LeafThesaurus,
     AnimeThesaurus,
-    get_chat_result,
-    hello__bot,
+    keyword_search,
     hello__reply,
     poke__reply,
     unknow_reply,
@@ -42,6 +41,12 @@ interrupt = leaf.leaf_interrupt
 ignore = leaf.leaf_ignore
 
 match_pattern = leaf.leaf_match_pattern
+
+if match_pattern == 0:
+    get_chat_result = lambda resource,key:resource.get(key,"")
+else:
+    get_chat_result = keyword_search
+
 at_mod = leaf.leaf_at_mod
 
 # 配置合法检测
@@ -59,8 +64,12 @@ else:
 # 优先级99，条件：艾特bot就触发
 
 if reply_type > -1:
-    talk = on_message(rule=to_me() if at_mod == 0 else None,
-                      permission=permission, priority=99, block=False)
+    talk = on_message(
+        rule = to_me() if at_mod == 0 else None,
+        permission = permission,
+        priority = 99,
+        block = False
+        )
 
     @talk.handle()
     async def _(event: MessageEvent):
@@ -73,10 +82,6 @@ if reply_type > -1:
         if (not msg) or msg.isspace():
             if at_mod == 0:
                 await talk.finish(Message(random.choice(hello__reply)))
-
-        # 如果是打招呼的话，就回复以下内容
-        if msg in hello__bot:
-            await talk.finish(Message(random.choice(hello__reply)))
 
         # 如果是已配置的忽略项，直接结束事件
         for i in range(len(ignore)):
@@ -94,19 +99,15 @@ if reply_type > -1:
                 random.choice(["酱", "亲", "ちゃん", "同志", "老师"])
 
         # 从个人字典里获取结果
-        if result := get_chat_result(MyThesaurus, msg, match_pattern):
-            await talk.finish(Message(result))
-
-        result = get_chat_result(MyThesaurus, msg, match_pattern)
-        if result:
+        if result := get_chat_result(MyThesaurus, msg):
             await talk.finish(Message(result))
 
         # 从 LeafThesaurus 里获取结果
-        if result := get_chat_result(LeafThesaurus, msg, match_pattern):
+        if result := get_chat_result(LeafThesaurus, msg):
             await talk.finish(Message(result.replace("name", nickname)))
 
         # 从 AnimeThesaurus 里获取结果
-        if result := get_chat_result(AnimeThesaurus, msg, match_pattern):
+        if result := get_chat_result(AnimeThesaurus, msg):
             await talk.finish(Message(result.replace("你", nickname)))
 
         # 不明白的内容

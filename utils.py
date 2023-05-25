@@ -19,6 +19,12 @@ Bot_MASTER: str = list(nonebot.get_driver().config.superusers)[0]      # bot的�
 
 path = os.path.join(os.path.dirname(__file__), "resource")
 
+def sorted_my_dict(my_dict:dict) -> dict:
+    """
+    排序词库
+    """
+    return dict(sorted(my_dict.items(), key = lambda item:len(item[0]), reverse = True))
+
 # 载入个人词库
 lst = os.listdir(Path(path))
 lst.remove("leaf.json")
@@ -40,25 +46,17 @@ for i in lst:
     except Exception as error:
         logger.info(f"错误：{error} {i} 加载失败...")
 
+MyThesaurus = sorted_my_dict(MyThesaurus)
+
 # 载入首选词库
 LeafThesaurus = json.load(open(Path(path) / "leaf.json", "r", encoding="utf8"))
+
+LeafThesaurus = sorted_my_dict(LeafThesaurus)
 
 # 载入词库(这个词库有点涩)
 AnimeThesaurus = json.load(open(Path(path) / "data.json", "r", encoding="utf8"))
 
-
-# 向bot打招呼
-hello__bot = [
-    "你好啊",
-    "你好",
-    "在吗",
-    "在不在",
-    "您好",
-    "您好啊",
-    "你好",
-    "在",
-    "早",
-]
+AnimeThesaurus = sorted_my_dict(AnimeThesaurus)
 
 # hello之类的回复
 hello__reply = [
@@ -114,20 +112,15 @@ interrupt_msg = [
     MessageSegment.face(181),
 ]
 
-
-def get_chat_result(resource: dict, text: str, match_pattern: int) -> str:
+def keyword_search(resource: dict, text: str) -> str:
     """
-    从 resource 中获取回应
+    从 resource 中获取回应：关键词查找
     """
     if len(text) < 21:
         keys = resource.keys()
         for key in keys:
-            if match_pattern == 0:
-                if text == key:
-                    return random.choice(resource[key])
-            elif match_pattern == 1:
-                if text.find(key) != -1:
-                    return random.choice(resource[key])
+            if text.find(key) != -1:
+                return random.choice(resource[key])
 
 def is_CQ_Code(msg:str) -> bool:
     '''
