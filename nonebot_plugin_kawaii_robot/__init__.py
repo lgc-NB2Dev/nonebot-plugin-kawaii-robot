@@ -1,0 +1,16 @@
+from nonebot.plugin import PluginMetadata
+
+from . import __main__ as __main__
+from .config import Config
+
+__version__ = "3.3.2"
+__plugin_meta__ = PluginMetadata(
+    name="KawaiiRobot",
+    description="使用 Kyomotoi / AnimeThesaurus 的 nonebot2 的回复（文i）插件",
+    usage="Ciallo～(∠・ω< )⌒★",
+    type="application",
+    homepage="https://github.com/KarisAya/nonebot_plugin_kawaii_robot/",
+    config=Config,
+    supported_adapters={"~onebot.v11"},
+    extra={},
+)
