@@ -1,7 +1,7 @@
 from nonebot.plugin import PluginMetadata
 
 from . import __main__ as __main__
-from .config import Config
+from .config import ConfigModel
 
 __version__ = "3.3.2"
 __plugin_meta__ = PluginMetadata(
@@ -10,7 +10,7 @@ __plugin_meta__ = PluginMetadata(
     usage="Ciallo～(∠・ω< )⌒★",
     type="application",
     homepage="https://github.com/KarisAya/nonebot_plugin_kawaii_robot/",
-    config=Config,
+    config=ConfigModel,
     supported_adapters={"~onebot.v11"},
     extra={},
 )

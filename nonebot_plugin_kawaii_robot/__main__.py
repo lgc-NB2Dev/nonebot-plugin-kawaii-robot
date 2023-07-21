@@ -1,168 +1,181 @@
-from nonebot.plugin.on import on_message,on_notice
-from nonebot.rule import to_me
+import asyncio
+import random
+from typing import Dict, List, Optional
+
 from nonebot.adapters.onebot.v11 import (
     GROUP,
+    Bot,
     GroupMessageEvent,
     Message,
     MessageEvent,
     MessageSegment,
     PokeNotifyEvent,
 )
+from nonebot.matcher import Matcher
+from nonebot.plugin.on import on_message, on_notice
+from nonebot.rule import Rule, to_me
 
-import nonebot
-import asyncio
-import re
-import random
+from .config import config
+from .data_source import (
+    LOADED_HELLO_REPLY,
+    LOADED_INTERRUPT_MSG,
+    LOADED_POKE_REPLY,
+    LOADED_REPLY_DICT,
+    LOADED_UNKNOWN_REPLY,
+)
+from .utils import format_vars, full_match_search, keyword_search
 
-from .utils import (
-    MyThesaurus,
-    LeafThesaurus,
-    AnimeThesaurus,
-    keyword_search,
-    hello__reply,
-    poke__reply,
-    unknow_reply,
-    interrupt_msg,
-    messagePreprocess
-    )
 
-from .config import Config
+def choice_reply(
+    reply_list: List[str],
+    user_id: str,
+    username: str,
+    **kwargs,
+) -> Message:
+    raw_reply = random.choice(reply_list)
+    return Message(format_vars(raw_reply, user_id, username, **kwargs))
 
-# 加载全局配置
-global_config = nonebot.get_driver().config
-leaf = Config.parse_obj(global_config.dict())
 
-reply_type = leaf.leaf_reply_type
-poke_rand = leaf.leaf_poke_rand
+def format_sender_username(username: Optional[str]) -> str:
+    username = username or "你"
+    if len(username) > 10:
+        username = username[:2] + random.choice(["酱", "亲", "ちゃん", "同志", "老师"])
+    return username
 
-repeater_limit = leaf.leaf_repeater_limit
-interrupt = leaf.leaf_interrupt
 
-ignore = leaf.leaf_ignore
+async def get_username_by_id(bot: Bot, user_id: int, group_id: Optional[int]) -> str:
+    if group_id:
+        info = await bot.get_group_member_info(group_id=group_id, user_id=user_id)
+        return info["card"] or info["nickname"]
 
-match_pattern = leaf.leaf_match_pattern
+    info = await bot.get_stranger_info(user_id=user_id)
+    return info["nickname"]
 
-if match_pattern == 0:
-    get_chat_result = lambda resource,key:resource.get(key,"")
-else:
-    get_chat_result = keyword_search
 
-at_mod = leaf.leaf_at_mod
+# 触发权限
+PERMISSION = GROUP if config.leaf_permission == "GROUP" else None
 
-# 配置合法检测
 
-if repeater_limit[0] < 2 or repeater_limit[0] > repeater_limit[1]:
-    raise Exception('config error: repeater_limit')
+# 词库回复
+if config.leaf_reply_type >= 0:
 
-# 权限判断
-
-if leaf.leaf_permission == "GROUP":
-    permission = GROUP
-else:
-    permission = None
-
-# 优先级99，条件：艾特bot就触发
-
-if reply_type > -1:
-    talk = on_message(
-        rule = to_me() if at_mod == 0 else None,
-        permission = permission,
-        priority = 99,
-        block = False
-        )
-
-    @talk.handle()
-    async def _(event: MessageEvent):
-        # 获取消息文本
-        msg = str(event.get_message())
-        # 去掉带中括号的内容(去除cq码)
-        msg = re.sub(r"\[.*?\]", "", msg)
-
-        # 如果是光艾特bot(没消息返回)，就回复以下内容
-        if (not msg) or msg.isspace():
-            if at_mod == 0:
-                await talk.finish(Message(random.choice(hello__reply)))
-
-        # 如果是已配置的忽略项，直接结束事件
-        for i in range(len(ignore)):
-            if msg.startswith(ignore[i]):
-                await talk.finish()
-
-        # 获取用户nickname
-        if isinstance(event, GroupMessageEvent):
-            nickname = event.sender.card or event.sender.nickname
-        else:
-            nickname = event.sender.nickname
-
-        if len(nickname) > 10:
-            nickname = nickname[:2] + \
-                random.choice(["酱", "亲", "ちゃん", "同志", "老师"])
-
-        # 从个人字典里获取结果
-        if result := get_chat_result(MyThesaurus, msg):
-            await talk.finish(Message(result))
-
-        # 从 LeafThesaurus 里获取结果
-        if result := get_chat_result(LeafThesaurus, msg):
-            await talk.finish(Message(result.replace("name", nickname)))
-
-        # 从 AnimeThesaurus 里获取结果
-        if result := get_chat_result(AnimeThesaurus, msg):
-            await talk.finish(Message(result.replace("你", nickname)))
-
-        # 不明白的内容
-        if at_mod == 0 and reply_type == 1:
-            await talk.finish(Message(random.choice(unknow_reply)))
-
-# 优先级10，不会向下阻断，条件：戳一戳bot触发
-
-if poke_rand > -1:
-    poke_ = on_notice(rule = to_me(), priority=10, block=False)
-    @poke_.handle()
-    async def _poke_event(event: PokeNotifyEvent):
-        if event.is_tome:
-            if poke_rand == 0:
-                await asyncio.sleep(1.0)
-                await poke_.finish(Message(f'[CQ:poke,qq={event.user_id}]'))
-            else:
-                if random.randint(1,100) <= poke_rand:
-                    await asyncio.sleep(1.0)
-                    await poke_.finish(Message(random.choice(poke__reply)))
-                else:
-                    await asyncio.sleep(1.0)
-                    await poke_.finish(Message(f'[CQ:poke,qq={event.user_id}]'))
-
-# 打断/复读姬
-
-if interrupt > -1:
-    global msg_last,msg_times,repeater_times
-    msg_last = {}
-    msg_times = {}
-    repeater_times = {}
-
-    async def repeat(event: GroupMessageEvent) -> bool:
-        global msg_last, msg_times,repeater_times
-        group_id = event.group_id
-        msg = messagePreprocess(event.message)
-        if msg_last.get(group_id) == msg:
-            repeater_times.setdefault(group_id,random.randint(repeater_limit[0], repeater_limit[1]))
-            msg_times[group_id] += 1
-            if msg_times[group_id] == repeater_times[group_id]:
-                repeater_times[group_id] = random.randint(repeater_limit[0], repeater_limit[1])
-                msg_times[group_id] += repeater_limit[1]
-                return True
-            else:
-                return False
-        else:
-            msg_last[group_id] = msg
-            msg_times[group_id] = 1
+    async def ignore_rule(event: MessageEvent) -> bool:
+        msg = event.get_plaintext().strip()
+        if next(
+            (x for x in config.leaf_ignore if msg.startswith(x)),
+            None,
+        ):
             return False
 
-    repeater = on_message(rule=repeat, permission=GROUP, priority=99, block=False)
+        if (not event.is_tome()) and (
+            random.randint(1, 100) > config.leaf_trigger_percent
+        ):
+            return False
+
+        return True
+
+    talk = on_message(
+        rule=Rule(ignore_rule) & (to_me() if config.leaf_at_mode == 0 else None),
+        permission=PERMISSION,
+        priority=99,
+        block=False,
+    )
+
+    @talk.handle()
+    async def _(matcher: Matcher, event: MessageEvent):
+        # 获取消息文本
+        msg = event.get_plaintext().strip()
+
+        # 用户 id 和昵称处理
+        user_id = event.get_user_id()
+        username = format_sender_username(event.sender.card or event.sender.nickname)
+
+        # 如果是光艾特bot(没消息返回)，就回复以下内容
+        if not msg and config.leaf_at_mode == 0:
+            await matcher.finish(choice_reply(LOADED_HELLO_REPLY, user_id, username))
+
+        # 从词库中获取回复
+        search_function = (
+            keyword_search if config.leaf_match_pattern == 1 else full_match_search
+        )
+        if reply_list := search_function(LOADED_REPLY_DICT, msg):
+            await matcher.finish(choice_reply(reply_list, user_id, username))
+
+        # 不明白的内容，开启所有回复并 @bot 才会回复
+        if event.is_tome() and config.leaf_reply_type == 1:
+            await matcher.finish(choice_reply(LOADED_UNKNOWN_REPLY, user_id, username))
+
+
+# 优先级10，不会向下阻断，条件：戳一戳bot触发
+if config.leaf_poke_rand >= 0:
+    poke_matcher = on_notice(rule=to_me(), priority=10, block=False)
+
+    @poke_matcher.handle()
+    async def _(bot: Bot, matcher: Matcher, event: PokeNotifyEvent):
+        await asyncio.sleep(1)
+
+        if config.leaf_poke_rand == 0 or random.randint(1, 100) > config.leaf_poke_rand:
+            await matcher.finish(MessageSegment("poke", {"qq": event.user_id}))
+
+        await matcher.finish(
+            choice_reply(
+                LOADED_POKE_REPLY,
+                event.get_user_id(),
+                format_sender_username(
+                    await get_username_by_id(bot, event.user_id, event.group_id),
+                ),
+            ),
+        )
+
+
+def transform_message(message: Message) -> Message:
+    """
+    将收到的消息中的特殊 segment 转换为可以发送的 segment
+    """
+    for x in (x for x in message if (not x.is_text() and "url" in x.data)):
+        x.data["file"] = x.data.pop("url")
+    return message
+
+
+# 打断/复读姬
+if config.leaf_interrupt >= 0:
+    msg_last: Dict[int, Message] = {}  # 存储群内最后一条消息
+    msg_times: Dict[int, int] = {}  # 存储群内最后一条消息被复读的次数
+    repeater_times: Dict[int, int] = {}  # 存储随机生成的复读上限
+
+    async def repeat_rule(event: GroupMessageEvent) -> bool:
+        group_id = event.group_id
+
+        # 复读
+        if msg_last.get(group_id) == event.message:
+            msg_times[group_id] += 1
+            repeater_times.setdefault(
+                group_id,
+                random.randint(*config.leaf_repeater_limit),
+            )
+
+            if msg_times[group_id] >= repeater_times[group_id]:
+                del msg_times[group_id]
+                del repeater_times[group_id]
+                return True
+
+            return False
+
+        # 不同消息，未复读
+        msg_last[group_id] = event.message
+        msg_times[group_id] = 1
+        return False
+
+    repeater = on_message(rule=repeat_rule, permission=GROUP, priority=99, block=False)
 
     @repeater.handle()
     async def _(event: GroupMessageEvent):
-        if random.randint(1,100) <= interrupt:
-            await repeater.finish(random.choice(interrupt_msg))
-        else:
-            await repeater.finish(event.message)
+        if random.randint(1, 100) <= config.leaf_interrupt:
+            await repeater.finish(
+                choice_reply(
+                    LOADED_INTERRUPT_MSG,
+                    event.get_user_id(),
+                    format_sender_username(event.sender.card or event.sender.nickname),
+                ),
+            )
+        await repeater.finish(transform_message(event.message))
