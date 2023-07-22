@@ -36,8 +36,11 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
     leaf_trigger_percent: int = 5
     """非 `to_me` 时的触发概率，范围 `0` ~ `100`"""
 
-    leaf_load_builtins: bool = True
-    """是否载入内置词库"""
+    leaf_load_builtin_dict: bool = True
+    """是否载入内置回复词库"""
+
+    leaf_load_builtin_special: bool = True
+    """是否载入内置特殊回复词库"""
 
     @validator("leaf_repeater_limit")
     def check_repeater_limit(cls, v):  # noqa: N805
