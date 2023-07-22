@@ -8,7 +8,6 @@ ReplyPermType = Literal["ALL", "GROUP"]
 
 class ConfigModel(BaseModel, extra=Extra.ignore):
     nickname: Set[str]
-    superusers: Set[str]
 
     leaf_permission: ReplyPermType = "ALL"
     """回复权限，`ALL` 就是全部聊天都会触发回复，`GROUP` 就是仅群聊"""
@@ -29,7 +28,7 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
     """打断概率，范围 `0` ~ `100`"""
 
     leaf_match_pattern: Literal[0, 1] = 1
-    """匹配模式，`0` 是精确匹配，`1` 是关键词匹配"""
+    """词库回复匹配模式，`0` 是精确匹配，`1` 是关键词匹配"""
 
     leaf_at_mode: Literal[0, 1] = 0
     """是否需要 `to_me`，`0` 是需要，`1` 是不需要"""
