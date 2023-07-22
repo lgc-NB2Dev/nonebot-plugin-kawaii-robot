@@ -12,7 +12,7 @@
 
 # Nonebot-Plugin-Kawaii-Robot
 
-_✨ 使用[Kyomotoi / AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus)的 nonebot2 的回复（文 i）插件 ✨_
+_✨ 使用 [Kyomotoi/AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus)的 nonebot2 的回复（文 i）插件 ✨_
 
 <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
 <a href="https://pdm.fming.dev">
@@ -38,27 +38,20 @@ _✨ 使用[Kyomotoi / AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesauru
 
 ## 📖 介绍
 
-### 个性化词库
+**WARNING：高二次元浓度警告**
 
-把你自己的词库（json 文件）扔到 resource 文件夹里就可以加载啦！
+### 词库回复
 
-可以加载多个 json 文件。
+当用户 @机器人 或者 提到机器人昵称时，会根据词库回复一条消息
 
-如果扔进了奇怪的东西大概会加载失败，然后。。。跳过，继续加载下一个文件。
+### 戳一戳回复
 
-~~不要把奇怪的东西扔进资源里呀 kora~~
+当用户戳机器人的时候，机器人会戳回去，或者随机回复一条词库中消息
 
-顺便一提，自己的词库是最优先的。
+### 群聊（打断）复读姬
 
-**注意：词库要符合 json 格式 如果报解码错误先检查自己的词库是不是 无 BOM 的 UTF-8 编码格式**
-
-### 群聊复读姬
-
-现在可以复读啦！~~谁不喜欢 +1 呢~~
-
+现在可以复读啦！~~谁不喜欢 +1 呢~~  
 当然也可以打断复读...~~谁不喜欢打断复读呢~~
-
-具体详见配置条目
 
 ## 💿 安装
 
@@ -137,12 +130,13 @@ NICKNAME=[]
 LEAF_PERMISSION=ALL
 
 # 忽略词，指令以本列表中的元素开头不会触发回复
+# 例：[".", "#", "你好"]
 LEAF_IGNORE=[]
 
 # 回复模式，`-1` 关闭全部 at 回复，`0` 仅启用字典，`1` 开启所有回复
 LEAF_REPLY_TYPE=1
 
-# 戳一戳回复文字概率，范围 `0` ~ `100`，`0` 代表始终戳回去，`-1` 关闭戳一戳回复
+# 戳一戳回复文字概率，范围 `0` ~ `100`，`-1` 关闭戳一戳回复，`0` 代表始终戳回去
 LEAF_POKE_RAND=20
 
 # 触发复读次数，群内复读 `{0}` ~ `{1}` 次数后触发复读或打断
@@ -154,12 +148,50 @@ LEAF_INTERRUPT=20
 # 词库回复匹配模式，`0` 是精确匹配，`1` 是关键词匹配
 LEAF_MATCH_PATTERN=1
 
-# 是否需要 @机器人 或包含机器人昵称，`0` 是需要，`1` 是不需要
-LEAF_AT_MODE=0
+# 词库回复是否需要 @机器人 或包含机器人昵称
+LEAF_AT_MODE=True
+
+# 当 `LEAF_AT_MODE` 为 `False` 时，非 @机器人 时的词库回复触发概率，范围 `0` ~ `100`
+LEAF_TRIGGER_PERCENT=5
+
+# 是否载入内置词库
+# 内置了 Kyomotoi/AnimeThesaurus 词库（data.json），还有咱自制的 bot 的词库（leaf.json）
+LEAF_LOAD_BUILTINS=True
 ```
 
 ### 词库
 
+#### 加载
+
+把你自己的词库（json 文件）扔到 `data/kawaii_robot` 文件夹里就可以加载啦！  
+可以加载多个 json 文件。  
+如果扔进了奇怪的东西大概会加载失败，然后。。。跳过，继续加载下一个文件。  
+~~不要把奇怪的东西扔进资源里呀 kora~~  
+顺便一提，自己的词库是最优先的。
+
+#### 编写
+
+参考 [Kyomotoi/AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus) 的 json 字典格式，键是关键词字符串，值是回复列表
+
+**注意：词库要符合 json 格式 如果报解码错误先检查自己的词库是不是 无 BOM 的 UTF-8 编码格式**
+
+回复里可以写变量，目前用 `str.format()` 格式化，  
+如果回复中需要用到 `{` 或 `}`，请用 `{{` 或 `}}` 代替  
+支持的变量：
+
+- `{user_id}`：发送者 QQ 号
+- `{username}`：发送者昵称（获取失败则默认为 `你`）
+- `{bot_nickname}`：机器人昵称（没有设置则默认为 `可爱的咱`）
+
+示例：
+
+```json
+{
+  "呐": ["嗯？{bot_nickname}在哦～{username}有什么事吗？"]
+}
+```
+
+<!--
 ## 🎉 使用
 
 ### 指令表
@@ -172,30 +204,21 @@ LEAF_AT_MODE=0
 ### 效果图
 
 如果有效果图的话
+-->
 
+<!--
 ## 📞 联系
 
-QQ：3076823485  
-Telegram：[@lgc2333](https://t.me/lgc2333)  
-吹水群：[1105946125](https://jq.qq.com/?_wv=1027&k=Z3n1MpEp)  
-邮箱：<lgc2333@126.com>
+...
+-->
 
 ## 💡 鸣谢
 
-如果有要鸣谢的人的话
+- 插件改编~~抄~~自 [nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客 api 的的智能~障~回复插件
+- 复读姬借鉴~~抄~~自 [nonebot_plugin_repeater](https://github.com/ninthseason/nonebot-plugin-repeater)：群聊复读机
 
-## 💰 赞助
-
-感谢大家的赞助！你们的赞助将是我继续创作的动力！
-
-- [爱发电](https://afdian.net/@lgc2333)
-- <details>
-    <summary>赞助二维码（点击展开）</summary>
-
-  ![讨饭](https://raw.githubusercontent.com/lgc2333/ShigureBotMenu/master/src/imgs/sponsor.png)
-
-  </details>
-
+<!--
 ## 📝 更新日志
 
 芝士刚刚发布的插件，还没有更新日志的说 qwq~
+-->

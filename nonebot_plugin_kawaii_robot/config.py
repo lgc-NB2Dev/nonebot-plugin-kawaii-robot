@@ -30,10 +30,10 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
     leaf_match_pattern: Literal[0, 1] = 1
     """词库回复匹配模式，`0` 是精确匹配，`1` 是关键词匹配"""
 
-    leaf_at_mode: Literal[0, 1] = 0
-    """是否需要 `to_me`，`0` 是需要，`1` 是不需要"""
+    leaf_at_mode: bool = True
+    """是否需要 `to_me`"""
 
-    leaf_trigger_percent: int = 100
+    leaf_trigger_percent: int = 5
     """非 `to_me` 时的触发概率，范围 `0` ~ `100`"""
 
     leaf_load_builtins: bool = True

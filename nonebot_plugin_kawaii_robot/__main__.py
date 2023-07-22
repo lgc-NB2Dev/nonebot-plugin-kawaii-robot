@@ -101,7 +101,7 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
     username = format_sender_username(event.sender.card or event.sender.nickname)
 
     # 如果是光艾特bot(没消息返回)，就回复以下内容
-    if not msg and config.leaf_at_mode == 0:
+    if (not msg) and event.is_tome():
         await matcher.finish(choice_reply(LOADED_HELLO_REPLY, user_id, username))
 
     # 从词库中获取回复
@@ -118,7 +118,7 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
 
 PERMISSION = GROUP if config.leaf_permission == "GROUP" else None
 talk = on_message(
-    rule=Rule(ignore_rule) & (to_me() if config.leaf_at_mode == 0 else None),
+    rule=Rule(ignore_rule) & (to_me() if config.leaf_at_mode else None),
     permission=PERMISSION,
     priority=99,
     block=False,
