@@ -11,7 +11,7 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
     superusers: Set[str]
 
     leaf_permission: ReplyPermType = "ALL"
-    """回复权限，`ALL` 就是全部聊天都会触发回复，`GROUP` 就是仅群聊。"""
+    """回复权限，`ALL` 就是全部聊天都会触发回复，`GROUP` 就是仅群聊"""
 
     leaf_ignore: Set[str] = set()
     """忽略词，指令以本 Set 中的元素开头不会触发回复"""
