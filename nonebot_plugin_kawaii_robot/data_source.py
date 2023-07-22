@@ -116,6 +116,13 @@ async def reload_replies():
     LOADED_UNKNOWN_REPLY.clear()
     LOADED_INTERRUPT_MSG.clear()
 
+    logger.info("正在载入自定义词库...")
+    await load_reply_json(ADDITIONAL_REPLY_PATH)
+    await async_load_list_json(LOADED_HELLO_REPLY, ADDITIONAL_HELLO_REPLY_PATH)
+    await async_load_list_json(LOADED_POKE_REPLY, ADDITIONAL_POKE_REPLY_PATH)
+    await async_load_list_json(LOADED_UNKNOWN_REPLY, ADDITIONAL_UNKNOWN_REPLY_PATH)
+    await async_load_list_json(LOADED_INTERRUPT_MSG, ADDITIONAL_INTERRUPT_MSG_PATH)
+
     if config.leaf_load_builtins:
         logger.info("正在载入内置词库...")
         await load_reply_json(BUILTIN_REPLY_PATH)
@@ -123,12 +130,5 @@ async def reload_replies():
         LOADED_POKE_REPLY.extend(BUILTIN_POKE_REPLY)
         LOADED_UNKNOWN_REPLY.extend(BUILTIN_UNKNOWN_REPLY)
         LOADED_INTERRUPT_MSG.extend(BUILTIN_INTERRUPT_MSG)
-
-    logger.info("正在载入自定义词库...")
-    await load_reply_json(ADDITIONAL_REPLY_PATH)
-    await async_load_list_json(LOADED_HELLO_REPLY, ADDITIONAL_HELLO_REPLY_PATH)
-    await async_load_list_json(LOADED_POKE_REPLY, ADDITIONAL_POKE_REPLY_PATH)
-    await async_load_list_json(LOADED_UNKNOWN_REPLY, ADDITIONAL_UNKNOWN_REPLY_PATH)
-    await async_load_list_json(LOADED_INTERRUPT_MSG, ADDITIONAL_INTERRUPT_MSG_PATH)
 
     logger.info("已载入所有词库~")
