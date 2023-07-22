@@ -148,12 +148,15 @@ if config.leaf_interrupt >= 0:
 
         # 复读
         if msg_last.get(group_id) == event.message:
+            if group_id not in msg_times:
+                return False
+
             msg_times[group_id] += 1
             if group_id not in repeater_times:
                 repeater_times[group_id] = random.randint(*config.leaf_repeater_limit)
 
             if msg_times[group_id] >= repeater_times[group_id]:
-                del msg_times[group_id]
+                del msg_times[group_id]  # del 掉防止继续复读
                 del repeater_times[group_id]
                 return True
 
