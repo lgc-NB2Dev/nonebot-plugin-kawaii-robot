@@ -10,9 +10,9 @@
   <img src="https://raw.githubusercontent.com/A-kirami/nonebot-plugin-template/resources/NoneBotPlugin.svg" width="240" alt="NoneBotPluginText">
 </p>
 
-# Nonebot-Plugin-Kawaii-Robot
+# NoneBot-Plugin-Kawaii-Robot
 
-_✨ 使用 [Kyomotoi/AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus)的 nonebot2 的回复（文 i）插件 ✨_
+_✨ 使用 [Kyomotoi/AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus) 的 NoneBot2 的回复（文 i）插件 ✨_
 
 <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
 <a href="https://pdm.fming.dev">
@@ -120,7 +120,7 @@ plugins = [
 
 ### 插件
 
-在 nonebot2 项目的 `.env` 文件中按需添加下面的配置项
+在 NoneBot2 项目的 `.env` 文件中按需添加下面的配置项
 
 ```properties
 # 机器人昵称
@@ -177,7 +177,7 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 
 参考 [Kyomotoi/AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus) 的 json 字典格式，键是关键词字符串，值是回复列表
 
-**注意：词库要符合 json 格式 如果报解码错误先检查自己的词库是不是 无 BOM 的 UTF-8 编码格式**
+**注意：词库要符合 json 格式 如果报解码错误（`UnicodeDecodeError`）先检查自己的词库是不是 无 BOM 的 UTF-8 编码格式**
 
 回复里可以写变量，目前用 `str.format()` 格式化；也可以往里写 CQ 码。  
 如果回复中需要用到 `{` 或 `}`，请用 `{{` 或 `}}` 代替。  
