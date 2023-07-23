@@ -148,10 +148,10 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
         await matcher.finish(choice_reply(LOADED_UNKNOWN_REPLY, user_id, username))
 
 
-PERMISSION = GROUP if config.leaf_permission == "GROUP" else None
+DICT_REPLY_PERM = GROUP if config.leaf_permission == "GROUP" else None
 talk = on_message(
     rule=Rule(ignore_rule) & (to_me() if config.leaf_at_mode else None),
-    permission=PERMISSION,
+    permission=DICT_REPLY_PERM,
     priority=99,
     block=False,
 )
