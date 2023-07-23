@@ -5,6 +5,8 @@ import anyio
 from nonebot import get_driver
 from nonebot.log import logger
 
+from nonebot_plugin_kawaii_robot.utils import full_to_half
+
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -81,10 +83,15 @@ async def load_reply_json(load_path: Path) -> Tuple[int, int]:
             continue
 
         try:
-            data = json.loads(await file.read_text(encoding="u8"))
+            loaded = json.loads(await file.read_text(encoding="u8"))
+            assert isinstance(loaded, dict)
+
+            data = {full_to_half(k.lower()): v for k, v in loaded.items()}
             merge_reply_dict(LOADED_REPLY_DICT, data)
+
             success_count += 1
             logger.opt(colors=True).success(f"回复词库 <y>{filename}</y> 加载成功~")
+
         except Exception:
             fail_count += 1
             logger.exception(f"回复词库 <y>{filename}</y> 加载失败")
