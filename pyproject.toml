@@ -2,7 +2,10 @@
 name = "nonebot-plugin-kawaii-robot"
 version = "4.0.0"
 description = "使用 Kyomotoi/AnimeThesaurus 的 NoneBot2 的回复（文i）插件"
-authors = [{ name = "karisaya", email = "1048827424@qq.com" }]
+authors = [
+    { name = "karisaya", email = "1048827424@qq.com" },
+    { name = "student_2333", email = "lgc2333@126.com" },
+]
 dependencies = [
     "nonebot2>=2.0.0",
     "nonebot-adapter-onebot>=2.2.0",
