@@ -166,7 +166,7 @@ if config.leaf_reply_type >= 0:
 
 
 async def poke_matcher_handler(bot: Bot, matcher: Matcher, event: PokeNotifyEvent):
-    await asyncio.sleep(1)
+    await asyncio.sleep(random.uniform(*config.leaf_poke_action_delay))
 
     if check_percentage(config.leaf_poke_rand):
         await matcher.finish(
