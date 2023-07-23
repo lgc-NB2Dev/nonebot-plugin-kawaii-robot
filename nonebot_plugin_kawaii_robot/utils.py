@@ -1,6 +1,6 @@
 import asyncio
 import random
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
 from nonebot.matcher import Matcher
@@ -124,3 +124,10 @@ async def finish_multi_msg(matcher: Matcher, msg_list: List[Message]):
         await matcher.send(msg)
 
     await matcher.finish()
+
+
+def flatten_list(li: Iterable[Iterable[str]]) -> List[str]:
+    """
+    展平二维列表
+    """
+    return [x for y in li for x in y]
