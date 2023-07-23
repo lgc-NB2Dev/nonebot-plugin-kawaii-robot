@@ -154,6 +154,9 @@ LEAF_AT_MODE=True
 # 当 `LEAF_AT_MODE` 为 `False` 时，非 @机器人 时的词库回复触发概率，范围 `0` ~ `100`
 LEAF_TRIGGER_PERCENT=5
 
+# 戳一戳回复延时，单位秒
+LEAF_POKE_ACTION_DELAY=[0.5, 1.5]
+
 # 是否载入内置回复词库
 # 内置了 Kyomotoi/AnimeThesaurus 词库（data.json），还有咱自制的 bot 的词库（leaf.json）
 LEAF_LOAD_BUILTIN_DICT=True
