@@ -19,18 +19,6 @@ license = { text = "AGPL-3.0" }
 [project.urls]
 homepage = "https://github.com/KarisAya/nonebot_plugin_kawaii_robot/"
 
-[project.optional-dependencies]
-dev = [
-    # 环境
-    "pip>=23.0.1",
-    "setuptools>=67.6.1",
-    "nb-cli>=1.0.5",
-    # 工具
-    "black>=23.3.0",
-    "ruff>=0.0.260",
-    "isort>=5.12.0",
-]
-
 [tool.pdm.build]
 includes = []
 
