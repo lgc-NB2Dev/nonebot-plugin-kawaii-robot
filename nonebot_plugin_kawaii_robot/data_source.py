@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 import anyio
+from nonebot import get_driver
 from nonebot.log import logger
 
 try:
@@ -18,7 +19,7 @@ from .const import (
     ReplyDictType,
 )
 
-BUILTIN_REPLY_PATH = Path(__file__) / "resource"
+BUILTIN_REPLY_PATH = Path(__file__).parent / "resource"
 ADDITIONAL_REPLY_PATH = Path.cwd() / "data" / "kawaii_robot"
 ADDITIONAL_HELLO_REPLY_PATH = ADDITIONAL_REPLY_PATH / "_hello.json"
 ADDITIONAL_POKE_REPLY_PATH = ADDITIONAL_REPLY_PATH / "_poke.json"
@@ -43,11 +44,15 @@ LOADED_UNKNOWN_REPLY: List[str] = []
 LOADED_INTERRUPT_MSG: List[str] = []
 
 
-def sorted_my_dict(my_dict: dict) -> dict:
+def sort_my_dict(my_dict: ReplyDictType):
     """
-    排序词库
+    按触发词长度倒序排序词库
     """
-    return dict(sorted(my_dict.items(), key=lambda item: len(item[0]), reverse=True))
+    sorted_dict = dict(
+        sorted(my_dict.items(), key=lambda item: len(item[0]), reverse=True),
+    )
+    my_dict.clear()
+    my_dict.update(sorted_dict)
 
 
 def merge_reply_dict(target: ReplyDictType, source: ReplyDictType):
@@ -134,4 +139,9 @@ async def reload_replies():
         LOADED_UNKNOWN_REPLY.extend(BUILTIN_UNKNOWN_REPLY)
         LOADED_INTERRUPT_MSG.extend(BUILTIN_INTERRUPT_MSG)
 
+    sort_my_dict(LOADED_REPLY_DICT)
     logger.success("已载入所有词库~")
+
+
+driver = get_driver()
+driver.on_startup(reload_replies)

@@ -51,6 +51,13 @@ def format_sender_username(username: Optional[str]) -> str:
     return username
 
 
+def format_username_from_event(event: MessageEvent) -> str:
+    """
+    从 MessageEvent 中获取发送者的昵称并格式化
+    """
+    return format_sender_username(event.sender.card or event.sender.nickname)
+
+
 async def get_username_by_id(bot: Bot, user_id: int, group_id: Optional[int]) -> str:
     """
     根据用户 id 获取用户昵称
@@ -72,6 +79,20 @@ def transform_message(message: Message) -> Message:
     return message
 
 
+def check_percentage(need_percent: int, percentage: Optional[int] = None) -> bool:
+    """
+    检查概率
+    """
+    if need_percent <= 0:
+        return False
+    if need_percent >= 100:
+        return True
+
+    if not percentage:
+        percentage = random.randint(1, 100)
+    return percentage <= need_percent
+
+
 # endregion
 
 
@@ -80,16 +101,27 @@ def transform_message(message: Message) -> Message:
 
 async def ignore_rule(event: MessageEvent) -> bool:
     msg = event.get_plaintext().strip()
+
+    # 消息以忽略词开头
     if next(
         (x for x in config.leaf_ignore if msg.startswith(x)),
         None,
     ):
         return False
 
-    if (not event.is_tome()) and (random.randint(1, 100) > config.leaf_trigger_percent):
-        return False
+    # at 始终触发
+    if event.is_tome():
+        return True
 
-    return True
+    # 没 at，启用非 at 回复，并且概率满足
+    if (
+        # (not event.is_tome()) and
+        (not config.leaf_at_mode)
+        and check_percentage(config.leaf_trigger_percent)
+    ):
+        return True
+
+    return False
 
 
 async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
@@ -98,7 +130,7 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
 
     # 用户 id 和昵称处理
     user_id = event.get_user_id()
-    username = format_sender_username(event.sender.card or event.sender.nickname)
+    username = format_username_from_event(event)
 
     # 如果是光艾特bot(没消息返回)，就回复以下内容
     if (not msg) and event.is_tome():
@@ -136,18 +168,18 @@ if config.leaf_reply_type >= 0:
 async def poke_matcher_handler(bot: Bot, matcher: Matcher, event: PokeNotifyEvent):
     await asyncio.sleep(1)
 
-    if config.leaf_poke_rand == 0 or random.randint(1, 100) > config.leaf_poke_rand:
-        await matcher.finish(MessageSegment("poke", {"qq": event.user_id}))
-
-    await matcher.finish(
-        choice_reply(
-            LOADED_POKE_REPLY,
-            event.get_user_id(),
-            format_sender_username(
-                await get_username_by_id(bot, event.user_id, event.group_id),
+    if check_percentage(config.leaf_poke_rand):
+        await matcher.finish(
+            choice_reply(
+                LOADED_POKE_REPLY,
+                event.get_user_id(),
+                format_sender_username(
+                    await get_username_by_id(bot, event.user_id, event.group_id),
+                ),
             ),
-        ),
-    )
+        )
+
+    await matcher.finish(MessageSegment("poke", {"qq": event.user_id}))
 
 
 poke_matcher = on_notice(rule=to_me(), priority=10, block=False)
@@ -191,12 +223,12 @@ async def repeat_rule(event: GroupMessageEvent) -> bool:
 
 
 async def repeater_matcher_handler(matcher: Matcher, event: GroupMessageEvent):
-    if random.randint(1, 100) <= config.leaf_interrupt:
+    if check_percentage(config.leaf_interrupt):
         await matcher.finish(
             choice_reply(
                 LOADED_INTERRUPT_MSG,
                 event.get_user_id(),
-                format_sender_username(event.sender.card or event.sender.nickname),
+                format_username_from_event(event),
             ),
         )
     await matcher.finish(transform_message(event.message))

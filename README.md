@@ -140,7 +140,7 @@ LEAF_REPLY_TYPE=1
 LEAF_POKE_RAND=20
 
 # 触发复读次数，群内复读 `{0}` ~ `{1}` 次数后触发复读或打断
-LEAF_REPEATER_LIMIT=[2,6]
+LEAF_REPEATER_LIMIT=[2, 6]
 
 # 打断概率，范围 `0` ~ `100`，`0` 关闭打断
 LEAF_INTERRUPT=20
