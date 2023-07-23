@@ -3,7 +3,7 @@ from nonebot.plugin import PluginMetadata
 from . import __main__ as __main__
 from .config import ConfigModel
 
-__version__ = "3.3.2"
+__version__ = "4.0.0"
 __plugin_meta__ = PluginMetadata(
     name="KawaiiRobot",
     description="使用 Kyomotoi/AnimeThesaurus 的 NoneBot2 的回复（文i）插件",

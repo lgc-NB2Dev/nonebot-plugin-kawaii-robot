@@ -248,8 +248,17 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 - 插件改编~~抄~~自 [nonebot_plugin_smart_reply](https://github.com/Special-Week/nonebot_plugin_smart_reply)：使用了青云客 api 的的智能~障~回复插件
 - 复读姬借鉴~~抄~~自 [nonebot_plugin_repeater](https://github.com/ninthseason/nonebot-plugin-repeater)：群聊复读机
 
-<!--
 ## 📝 更新日志
 
-芝士刚刚发布的插件，还没有更新日志的说 qwq~
--->
+### 4.0.0
+
+- 完全重构插件代码，更改项目结构，使用 `pdm` 管理项目
+- 词库加载优化：现在可以直接往 `data/kawaii_robot` 文件夹里扔你自己的 json 词库了，详见 [附加词库](#附加词库)
+- 配置项的增加与修改（更多信息请看 [配置](#%EF%B8%8F-配置)）：
+  - 修改 `LEAF_IGNORE`：修改类型为 `Set[str]`，配置书写方式不变
+  - 修改 `LEAF_AT_MOD`：更名为 `LEAF_AT_MODE`，修改类型为 `bool`
+  - 增加 `LEAF_TRIGGER_PERCENT`
+  - 增加 `LEAF_POKE_ACTION_DELAY`
+  - 增加 `LEAF_LOAD_BUILTIN_DICT`
+  - 增加 `LEAF_LOAD_BUILTIN_SPECIAL`
+- 还有的可能没列出来，问就是我忘了，qwq
