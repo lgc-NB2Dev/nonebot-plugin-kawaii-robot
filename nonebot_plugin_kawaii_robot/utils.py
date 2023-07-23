@@ -1,6 +1,6 @@
 import asyncio
 import random
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
 from nonebot.matcher import Matcher
@@ -9,11 +9,21 @@ from .config import config
 from .const import NICKNAME, ReplyDictType
 
 
+def full_to_half(text: str) -> str:
+    """
+    全角转半角
+    """
+    return "".join(
+        chr(ord(char) - 0xFEE0) if "\uFF01" <= char <= "\uFF5E" else char
+        for char in text
+    )
+
+
 def full_match_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
     """
     从 resource 中获取回应：精确查找
     """
-    return resource.get(text, None)
+    return resource.get(full_to_half(text.lower()), None)
 
 
 def keyword_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
@@ -22,6 +32,8 @@ def keyword_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
     """
     if len(text) > 20:
         return None
+
+    text = full_to_half(text.lower())
     return next(
         (resource[key] for key in resource if key in text),
         None,
@@ -112,3 +124,10 @@ async def finish_multi_msg(matcher: Matcher, msg_list: List[Message]):
         await matcher.send(msg)
 
     await matcher.finish()
+
+
+def flatten_list(li: Iterable[Iterable[str]]) -> List[str]:
+    """
+    展平二维列表
+    """
+    return [x for y in li for x in y]

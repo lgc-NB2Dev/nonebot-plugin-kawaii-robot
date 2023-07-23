@@ -5,6 +5,8 @@ import anyio
 from nonebot import get_driver
 from nonebot.log import logger
 
+from .utils import flatten_list, full_to_half
+
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -81,10 +83,15 @@ async def load_reply_json(load_path: Path) -> Tuple[int, int]:
             continue
 
         try:
-            data = json.loads(await file.read_text(encoding="u8"))
+            loaded = json.loads(await file.read_text(encoding="u8"))
+            assert isinstance(loaded, dict)
+
+            data = {full_to_half(k.lower()): v for k, v in loaded.items()}
             merge_reply_dict(LOADED_REPLY_DICT, data)
+
             success_count += 1
             logger.opt(colors=True).success(f"回复词库 <y>{filename}</y> 加载成功~")
+
         except Exception:
             fail_count += 1
             logger.exception(f"回复词库 <y>{filename}</y> 加载失败")
@@ -141,6 +148,19 @@ async def reload_replies():
 
     sort_my_dict(LOADED_REPLY_DICT)
     logger.success("已载入所有词库~")
+
+    total_reply_key = len(LOADED_REPLY_DICT)
+    total_reply_value = len(flatten_list(LOADED_REPLY_DICT.values()))
+    total_special_reply = (
+        len(LOADED_HELLO_REPLY)
+        + len(LOADED_POKE_REPLY)
+        + len(LOADED_UNKNOWN_REPLY)
+        + len(LOADED_INTERRUPT_MSG)
+    )
+    logger.opt(colors=True).info(
+        f"共计载入 <y>{total_reply_key}</y> 个触发词，及 <y>{total_reply_value}</y> 条对应回复；"
+        f"共计载入 <y>{total_special_reply}</y> 条特殊回复",
+    )
 
 
 driver = get_driver()
