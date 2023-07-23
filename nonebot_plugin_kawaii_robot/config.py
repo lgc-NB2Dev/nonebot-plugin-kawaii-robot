@@ -1,4 +1,4 @@
-from typing import Literal, Set, Tuple
+from typing import Iterable, Literal, Set, Tuple
 
 from nonebot import get_driver
 from pydantic import BaseModel, Extra, validator
@@ -56,12 +56,13 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
         if isinstance(v, (int, float)):
             v = (v, v)
         else:
-            if not isinstance(v, tuple):
-                raise TypeError("区间必须是 int, float 或 tuple")
+            if not isinstance(v, Iterable):
+                raise TypeError("区间必须是 int, float 或 Iterable")
+            v = tuple(v)
             if len(v) != 2:
                 raise ValueError("区间长度必须为 2")
-            if v[0] >= v[1]:
-                raise ValueError("区间左边界必须小于右边界")
+            if v[0] > v[1]:
+                raise ValueError("区间左边界必须小于或等于右边界")
         return v
 
     @validator("leaf_repeater_limit")
