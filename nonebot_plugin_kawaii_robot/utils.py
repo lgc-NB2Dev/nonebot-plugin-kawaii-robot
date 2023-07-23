@@ -29,15 +29,13 @@ def keyword_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
 
 
 def format_vars(string: str, user_id: str, username: str, **kwargs) -> List[str]:
-    return [
-        x.format(
-            user_id=user_id,
-            username=username,
-            bot_nickname=NICKNAME,
-            **kwargs,
-        )
-        for x in string.split("{segment}")
-    ]
+    return string.format(
+        segment="\u0000",
+        user_id=user_id,
+        username=username,
+        bot_nickname=NICKNAME,
+        **kwargs,
+    ).split("\u0000")
 
 
 def choice_reply(
