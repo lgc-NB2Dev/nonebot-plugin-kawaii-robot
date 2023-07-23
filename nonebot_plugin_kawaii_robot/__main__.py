@@ -162,7 +162,7 @@ async def repeat_rule(event: GroupMessageEvent) -> bool:
 
 async def repeater_matcher_handler(matcher: Matcher, event: GroupMessageEvent):
     if check_percentage(config.leaf_interrupt):
-        msg_times[event.group_id] = 1
+        msg_times[event.group_id] = 0  # 让下次复读计入次数统计，以便再次打断或复读
         await matcher.finish(
             choice_reply(
                 LOADED_INTERRUPT_MSG,
