@@ -54,7 +54,7 @@ async def ignore_rule(event: MessageEvent) -> bool:
     # 没 at，启用非 at 回复，并且概率满足
     if (
         # (not event.is_tome()) and
-        (not config.leaf_at_mode)
+        (not config.leaf_need_at)
         and check_percentage(config.leaf_trigger_percent)
     ):
         return True
@@ -88,7 +88,7 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
 
 DICT_REPLY_PERM = GROUP if config.leaf_permission == "GROUP" else None
 talk = on_message(
-    rule=Rule(ignore_rule) & (to_me() if config.leaf_at_mode else None),
+    rule=Rule(ignore_rule) & (to_me() if config.leaf_need_at else None),
     permission=DICT_REPLY_PERM,
     priority=99,
     block=False,

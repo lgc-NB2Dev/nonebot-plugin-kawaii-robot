@@ -149,9 +149,9 @@ LEAF_INTERRUPT=20
 LEAF_MATCH_PATTERN=1
 
 # 词库回复是否需要 @机器人 或包含机器人昵称
-LEAF_AT_MODE=True
+LEAF_NEED_AT=True
 
-# 当 `LEAF_AT_MODE` 为 `False` 时，非 @机器人 时的词库回复触发概率，范围 `0` ~ `100`
+# 当 `LEAF_NEED_AT` 为 `False` 时，非 @机器人 时的词库回复触发概率，范围 `0` ~ `100`
 LEAF_TRIGGER_PERCENT=5
 
 # 戳一戳回复延时，单位秒
@@ -256,7 +256,7 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 - 词库加载优化：现在可以直接往 `data/kawaii_robot` 文件夹里扔你自己的 json 词库了，详见 [附加词库](#附加词库)
 - 配置项的增加与修改（更多信息请看 [配置](#%EF%B8%8F-配置)）：
   - 修改 `LEAF_IGNORE`：修改类型为 `Set[str]`，配置书写方式不变
-  - 修改 `LEAF_AT_MOD`：更名为 `LEAF_AT_MODE`，修改类型为 `bool`
+  - 修改 `LEAF_AT_MOD`：更名为 `LEAF_NEED_AT`，修改类型为 `bool`
   - 增加 `LEAF_TRIGGER_PERCENT`
   - 增加 `LEAF_POKE_ACTION_DELAY`
   - 增加 `LEAF_LOAD_BUILTIN_DICT`
