@@ -39,6 +39,9 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
     leaf_poke_action_delay: Tuple[float, float] = (0.5, 1.5)
     """戳一戳回复延时，单位秒"""
 
+    leaf_multi_reply_delay: Tuple[float, float] = (1.0, 3.0)
+    """当回复存在多条消息时，发送消息的间隔时间，单位秒"""
+
     leaf_load_builtin_dict: bool = True
     """是否载入内置回复词库"""
 
@@ -51,7 +54,12 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
             raise ValueError("概率范围必须是 0 ~ 100")
         return v
 
-    @validator("leaf_repeater_limit", "leaf_poke_action_delay", pre=True)
+    @validator(
+        "leaf_repeater_limit",
+        "leaf_poke_action_delay",
+        "leaf_multi_reply_delay",
+        pre=True,
+    )
     def check_interval(cls, v):  # noqa: N805
         if isinstance(v, (int, float)):
             v = (v, v)

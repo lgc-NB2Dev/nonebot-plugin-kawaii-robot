@@ -157,6 +157,9 @@ LEAF_TRIGGER_PERCENT=5
 # 戳一戳回复延时，单位秒
 LEAF_POKE_ACTION_DELAY=[0.5, 1.5]
 
+# 当回复存在多条消息时，发送消息的间隔时间，单位秒
+LEAF_MULTI_REPLY_DELAY=[1.0, 3.0]
+
 # 是否载入内置回复词库
 # 内置了 Kyomotoi/AnimeThesaurus 词库（data.json），还有咱自制的 bot 的词库（leaf.json）
 LEAF_LOAD_BUILTIN_DICT=True
@@ -189,6 +192,7 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 - `{user_id}`：发送者 QQ 号
 - `{username}`：发送者昵称（获取失败则默认为 `你`）
 - `{bot_nickname}`：机器人昵称（没有设置则默认为 `可爱的咱`）
+- `{segment}`：用于分割消息，该变量前的文本将会单独为一条消息发送
 
 示例：
 
@@ -253,12 +257,15 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 ### 4.0.0
 
 - 完全重构插件代码，更改项目结构，使用 `pdm` 管理项目
-- 词库加载优化：现在可以直接往 `data/kawaii_robot` 文件夹里扔你自己的 json 词库了，详见 [附加词库](#附加词库)
-- 配置项的增加与修改（更多信息请看 [配置](#%EF%B8%8F-配置)）：
+- 词库优化（详见 [附加词库](#附加词库)）：
+  - 加载：现在可以直接往 `data/kawaii_robot` 文件夹里扔你自己的 json 词库了
+  - 编写：支持了一些变量
+- 配置项的增加与修改（详见 [配置](#%EF%B8%8F-配置)）：
   - 修改 `LEAF_IGNORE`：修改类型为 `Set[str]`，配置书写方式不变
   - 修改 `LEAF_AT_MOD`：更名为 `LEAF_NEED_AT`，修改类型为 `bool`
   - 增加 `LEAF_TRIGGER_PERCENT`
   - 增加 `LEAF_POKE_ACTION_DELAY`
   - 增加 `LEAF_LOAD_BUILTIN_DICT`
   - 增加 `LEAF_LOAD_BUILTIN_SPECIAL`
+  - 增加 `LEAF_MULTI_REPLY_DELAY`
 - 还有的可能没列出来，问就是我忘了，qwq

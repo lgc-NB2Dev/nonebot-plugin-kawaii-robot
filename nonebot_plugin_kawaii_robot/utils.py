@@ -1,8 +1,11 @@
+import asyncio
 import random
 from typing import List, Optional
 
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
+from nonebot.matcher import Matcher
 
+from .config import config
 from .const import NICKNAME, ReplyDictType
 
 
@@ -25,13 +28,16 @@ def keyword_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
     )
 
 
-def format_vars(string: str, user_id: str, username: str, **kwargs) -> str:
-    return string.format(
-        user_id=user_id,
-        username=username,
-        bot_nickname=NICKNAME,
-        **kwargs,
-    )
+def format_vars(string: str, user_id: str, username: str, **kwargs) -> List[str]:
+    return [
+        x.format(
+            user_id=user_id,
+            username=username,
+            bot_nickname=NICKNAME,
+            **kwargs,
+        )
+        for x in string.split("{segment}")
+    ]
 
 
 def choice_reply(
@@ -39,12 +45,12 @@ def choice_reply(
     user_id: str,
     username: str,
     **kwargs,
-) -> Message:
+) -> List[Message]:
     """
     从提供的回复列表中随机选择一条回复并格式化
     """
     raw_reply = random.choice(reply_list)
-    return Message(format_vars(raw_reply, user_id, username, **kwargs))
+    return [Message(x) for x in format_vars(raw_reply, user_id, username, **kwargs)]
 
 
 def format_sender_username(username: Optional[str]) -> str:
@@ -97,3 +103,14 @@ def check_percentage(need_percent: int, percentage: Optional[int] = None) -> boo
     if not percentage:
         percentage = random.randint(1, 100)
     return percentage <= need_percent
+
+
+async def finish_multi_msg(matcher: Matcher, msg_list: List[Message]):
+    first_msg = msg_list.pop(0)
+    await matcher.send(first_msg)
+
+    for msg in msg_list:
+        await asyncio.sleep(random.uniform(*config.leaf_multi_reply_delay))
+        await matcher.send(msg)
+
+    await matcher.finish()

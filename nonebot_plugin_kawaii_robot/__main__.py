@@ -26,6 +26,7 @@ from .data_source import (
 from .utils import (
     check_percentage,
     choice_reply,
+    finish_multi_msg,
     format_sender_username,
     format_username_from_event,
     full_match_search,
@@ -72,18 +73,27 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
 
     # 如果是光艾特bot(没消息返回)，就回复以下内容
     if (not msg) and event.is_tome():
-        await matcher.finish(choice_reply(LOADED_HELLO_REPLY, user_id, username))
+        await finish_multi_msg(
+            matcher,
+            choice_reply(LOADED_HELLO_REPLY, user_id, username),
+        )
 
     # 从词库中获取回复
     search_function = (
         keyword_search if config.leaf_match_pattern == 1 else full_match_search
     )
     if reply_list := search_function(LOADED_REPLY_DICT, msg):
-        await matcher.finish(choice_reply(reply_list, user_id, username))
+        await finish_multi_msg(
+            matcher,
+            choice_reply(reply_list, user_id, username),
+        )
 
     # 不明白的内容，开启所有回复并 @bot 才会回复
     if event.is_tome() and config.leaf_reply_type == 1:
-        await matcher.finish(choice_reply(LOADED_UNKNOWN_REPLY, user_id, username))
+        await finish_multi_msg(
+            matcher,
+            choice_reply(LOADED_UNKNOWN_REPLY, user_id, username),
+        )
 
 
 DICT_REPLY_PERM = GROUP if config.leaf_permission == "GROUP" else None
@@ -107,7 +117,8 @@ async def poke_matcher_handler(bot: Bot, matcher: Matcher, event: PokeNotifyEven
     await asyncio.sleep(random.uniform(*config.leaf_poke_action_delay))
 
     if check_percentage(config.leaf_poke_rand):
-        await matcher.finish(
+        await finish_multi_msg(
+            matcher,
             choice_reply(
                 LOADED_POKE_REPLY,
                 event.get_user_id(),
@@ -163,7 +174,8 @@ async def repeat_rule(event: GroupMessageEvent) -> bool:
 async def repeater_matcher_handler(matcher: Matcher, event: GroupMessageEvent):
     if check_percentage(config.leaf_interrupt):
         msg_times[event.group_id] = 0  # 让下次复读计入次数统计，以便再次打断或复读
-        await matcher.finish(
+        await finish_multi_msg(
+            matcher,
             choice_reply(
                 LOADED_INTERRUPT_MSG,
                 event.get_user_id(),
