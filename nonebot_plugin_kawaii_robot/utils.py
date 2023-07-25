@@ -9,6 +9,13 @@ from .config import config
 from .const import NICKNAME, ReplyDictType
 
 
+def flatten_list(li: Iterable[Iterable[str]]) -> List[str]:
+    """
+    展平二维列表
+    """
+    return [x for y in li for x in y]
+
+
 def full_to_half(text: str) -> str:
     """
     全角转半角
@@ -19,25 +26,23 @@ def full_to_half(text: str) -> str:
     )
 
 
-def full_match_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
+def search_reply_dict(reply_dict: ReplyDictType, text: str) -> Optional[List[str]]:
     """
-    从 resource 中获取回应：精确查找
+    在词库中搜索回复
     """
-    return resource.get(full_to_half(text.lower()), None)
+    text = full_to_half(text.lower())
 
+    if config.leaf_match_pattern == 0:
+        return reply_dict.get(text)
 
-def keyword_search(resource: ReplyDictType, text: str) -> Optional[List[str]]:
-    """
-    从 resource 中获取回应：关键词查找
-    """
-    if len(text) > 20:
+    if config.leaf_search_max > 0 and len(text) > config.leaf_search_max:
         return None
 
-    text = full_to_half(text.lower())
-    return next(
-        (resource[key] for key in resource if key in text),
-        None,
-    )
+    generator = (reply_dict[key] for key in reply_dict if key in text)
+    if config.leaf_match_pattern == 1:
+        return next(generator, None)
+
+    return flatten_list(list(generator)) or None
 
 
 def format_vars(string: str, user_id: str, username: str, **kwargs) -> List[str]:
@@ -124,10 +129,3 @@ async def finish_multi_msg(matcher: Matcher, msg_list: List[Message]):
         await matcher.send(msg)
 
     await matcher.finish()
-
-
-def flatten_list(li: Iterable[Iterable[str]]) -> List[str]:
-    """
-    展平二维列表
-    """
-    return [x for y in li for x in y]

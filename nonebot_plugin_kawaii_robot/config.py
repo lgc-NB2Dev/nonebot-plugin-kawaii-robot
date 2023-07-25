@@ -27,8 +27,19 @@ class ConfigModel(BaseModel, extra=Extra.ignore):
     leaf_interrupt: int = 20
     """打断复读概率，范围 `0` ~ `100`"""
 
-    leaf_match_pattern: Literal[0, 1] = 1
-    """词库回复匹配模式，`0` 是精确匹配，`1` 是关键词匹配"""
+    leaf_interrupt_continue: bool = True
+    """打断复读后，群友继续复读达到指定次数时是否继续参与复读或打断"""
+
+    leaf_match_pattern: Literal[0, 1, 2] = 1
+    """
+    词库回复匹配模式，
+    `0` 是整句话精确匹配关键词（不推荐）；
+    `1` 是按从长到短的顺序遍历词库中的关键词，遇到匹配的就停止遍历并选取对应回复；
+    `2` 与 `1` 的遍历方式相同，但是会遍历所有词库中的关键词，然后从匹配到的所有项目中随机选取一个回复
+    """
+
+    leaf_search_max: int = 20
+    """当 `LEAF_MATCH_PATTERN` >= 1 时，消息长度大于此数值则不从词库中匹配回复，设为 `0` 则禁用此功能"""
 
     leaf_need_at: bool = True
     """词库回复是否需要 `to_me`"""
