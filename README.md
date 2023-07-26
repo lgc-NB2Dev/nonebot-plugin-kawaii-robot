@@ -145,8 +145,17 @@ LEAF_REPEATER_LIMIT=[2, 6]
 # 打断概率，范围 `0` ~ `100`，`0` 关闭打断
 LEAF_INTERRUPT=20
 
-# 词库回复匹配模式，`0` 是精确匹配，`1` 是关键词匹配
+# 打断复读后，群友继续复读达到指定次数时是否继续参与复读或打断
+LEAF_INTERRUPT_CONTINUE=True
+
+# 词库回复匹配模式，
+# `0` 是整句话精确匹配关键词（不推荐）；
+# `1` 是按从长到短的顺序遍历词库中的关键词，遇到匹配的就停止遍历并选取对应回复；
+# `2` 与 `1` 的遍历方式相同，但是会遍历所有词库中的关键词，然后从匹配到的所有项目中随机选取一个回复
 LEAF_MATCH_PATTERN=1
+
+# 当 `LEAF_MATCH_PATTERN` >= 1 时，消息长度大于此数值则不从词库中匹配回复，设为 `0` 则禁用此功能
+LEAF_SEARCH_MAX=20
 
 # 词库回复是否需要 @机器人 或包含机器人昵称
 LEAF_NEED_AT=True
@@ -262,7 +271,10 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
   - 编写：支持了一些变量
 - 配置项的增加与修改（详见 [配置](#%EF%B8%8F-配置)）：
   - 修改 `LEAF_IGNORE`：修改类型为 `Set[str]`，配置书写方式不变
+  - 修改 `LEAF_MATCH_PATTERN`：新增模式 `2`
   - 修改 `LEAF_AT_MOD`：更名为 `LEAF_NEED_AT`，修改类型为 `bool`
+  - 增加 `LEAF_INTERRUPT_CONTINUE`
+  - 增加 `LEAF_SEARCH_MAX`
   - 增加 `LEAF_TRIGGER_PERCENT`
   - 增加 `LEAF_POKE_ACTION_DELAY`
   - 增加 `LEAF_LOAD_BUILTIN_DICT`

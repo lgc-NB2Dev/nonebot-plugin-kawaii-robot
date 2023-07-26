@@ -29,9 +29,8 @@ from .utils import (
     finish_multi_msg,
     format_sender_username,
     format_username_from_event,
-    full_match_search,
     get_username_by_id,
-    keyword_search,
+    search_reply_dict,
     transform_message,
 )
 
@@ -71,7 +70,7 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
     user_id = event.get_user_id()
     username = format_username_from_event(event)
 
-    # 如果是光艾特bot(没消息返回)，就回复以下内容
+    # 如果是光艾特 bot (没消息返回)，就回复以下内容
     if (not msg) and event.is_tome():
         await finish_multi_msg(
             matcher,
@@ -79,10 +78,7 @@ async def talk_matcher_handler(matcher: Matcher, event: MessageEvent):
         )
 
     # 从词库中获取回复
-    search_function = (
-        keyword_search if config.leaf_match_pattern == 1 else full_match_search
-    )
-    if reply_list := search_function(LOADED_REPLY_DICT, msg):
+    if reply_list := search_reply_dict(LOADED_REPLY_DICT, msg):
         await finish_multi_msg(
             matcher,
             choice_reply(reply_list, user_id, username),
@@ -173,7 +169,10 @@ async def repeat_rule(event: GroupMessageEvent) -> bool:
 
 async def repeater_matcher_handler(matcher: Matcher, event: GroupMessageEvent):
     if check_percentage(config.leaf_interrupt):
-        msg_times[event.group_id] = 0  # 让下次复读计入次数统计，以便再次打断或复读
+        if config.leaf_interrupt_continue:
+            # 让下次复读计入次数统计，以便再次打断或复读
+            msg_times[event.group_id] = 0
+
         await finish_multi_msg(
             matcher,
             choice_reply(
@@ -182,6 +181,7 @@ async def repeater_matcher_handler(matcher: Matcher, event: GroupMessageEvent):
                 format_username_from_event(event),
             ),
         )
+
     await matcher.finish(transform_message(event.message))
 
 
