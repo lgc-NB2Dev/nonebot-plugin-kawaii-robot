@@ -4,7 +4,7 @@ from .config import config
 
 ReplyDictType = Dict[str, List[str]]
 
-NICKNAME = list(config.nickname)[0] if config.nickname else "可爱的咱"
+NICKNAME = next(iter(config.nickname)) if config.nickname else "可爱的咱"
 
 # hello之类的回复
 BUILTIN_HELLO_REPLY = [
@@ -55,7 +55,7 @@ BUILTIN_UNKNOWN_REPLY = [
 BUILTIN_INTERRUPT_MSG = [
     "打断！",
     "打断复读！",
-    "[CQ:face,id=212]",
-    "[CQ:face,id=318][CQ:face,id=318]",
-    "[CQ:face,id=181]",
+    # "[CQ:face,id=212]",
+    # "[CQ:face,id=318][CQ:face,id=318]",
+    # "[CQ:face,id=181]",
 ]

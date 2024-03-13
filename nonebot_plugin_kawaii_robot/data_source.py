@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 from typing import List, Tuple
 
@@ -110,7 +111,9 @@ async def async_load_list_json(
     try:
         data = json.loads(await path.read_text(encoding="u8"))
         merge_target.extend(x for x in data if x not in merge_target)
-        logger.opt(colors=True).success(f"特殊回复词库 <y>{json_path.name}</y> 加载成功~")
+        logger.opt(colors=True).success(
+            f"特殊回复词库 <y>{json_path.name}</y> 加载成功~",
+        )
     except Exception:
         logger.exception(f"特殊回复词库 <y>{json_path.name}</y> 加载失败")
         return False
@@ -129,11 +132,13 @@ async def reload_replies():
     LOADED_INTERRUPT_MSG.clear()
 
     logger.info("正在载入自定义词库...")
-    await load_reply_json(ADDITIONAL_REPLY_PATH)
-    await async_load_list_json(LOADED_HELLO_REPLY, ADDITIONAL_HELLO_REPLY_PATH)
-    await async_load_list_json(LOADED_POKE_REPLY, ADDITIONAL_POKE_REPLY_PATH)
-    await async_load_list_json(LOADED_UNKNOWN_REPLY, ADDITIONAL_UNKNOWN_REPLY_PATH)
-    await async_load_list_json(LOADED_INTERRUPT_MSG, ADDITIONAL_INTERRUPT_MSG_PATH)
+    await asyncio.gather(
+        load_reply_json(ADDITIONAL_REPLY_PATH),
+        async_load_list_json(LOADED_HELLO_REPLY, ADDITIONAL_HELLO_REPLY_PATH),
+        async_load_list_json(LOADED_POKE_REPLY, ADDITIONAL_POKE_REPLY_PATH),
+        async_load_list_json(LOADED_UNKNOWN_REPLY, ADDITIONAL_UNKNOWN_REPLY_PATH),
+        async_load_list_json(LOADED_INTERRUPT_MSG, ADDITIONAL_INTERRUPT_MSG_PATH),
+    )
 
     if config.leaf_load_builtin_dict:
         logger.info("正在载入内置回复词库...")

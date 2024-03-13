@@ -24,6 +24,9 @@ _✨ 使用 [Kyomotoi/AnimeThesaurus](https://github.com/Kyomotoi/AnimeThesaurus
 
 <br />
 
+<a href="https://pydantic.dev">
+  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lgc-NB2Dev/readme/main/template/pyd-v1-or-v2.json" alt="Pydantic Version 1 Or 2" >
+</a>
 <a href="./LICENSE">
   <img src="https://img.shields.io/github/license/KarisAya/nonebot_plugin_kawaii_robot.svg" alt="license">
 </a>
@@ -194,21 +197,26 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 
 **注意：词库要符合 json 格式 如果报解码错误（`UnicodeDecodeError`）先检查自己的词库是不是 无 BOM 的 UTF-8 编码格式**
 
-回复里可以写变量，目前用 `str.format()` 格式化；也可以往里写 CQ 码。  
+回复里可以写变量，目前用 `UniMessage.template().format()` 格式化；可以往里写 [Alconna 的扩展控制符](https://nonebot.dev/docs/best-practice/alconna/uniseg#%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E6%A8%A1%E6%9D%BF)。  
 如果回复中需要用到 `{` 或 `}`，请用 `{{` 或 `}}` 代替。  
-支持的变量：
+插件内建的一些的变量：
 
 - `{user_id}`：发送者 QQ 号
 - `{username}`：发送者昵称（获取失败则默认为 `你`）
 - `{bot_nickname}`：机器人昵称（没有设置则默认为 `可爱的咱`）
+- `{message_id}`: 消息 ID
 - `{segment}`：用于分割消息，该变量前的文本将会单独为一条消息发送
+- `{at}`: At 消息发送者，是 `{:At(user, user_id)}` 的简写
+- `{reply}`: 回复发送者的消息，是 `{:Reply(message_id)}` 的简写
 
 示例：
 
 ```jsonc
 {
   "呐": [
-    "嗯？{bot_nickname}在哦～{username}有什么事吗？"
+    "嗯？{bot_nickname}在哦～{username}有什么事吗？",
+    "{at} 呐呐呐~",
+    "{:Reply(message_id)} 呐？"
     // ...
   ]
 }
@@ -263,13 +271,18 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 
 ## 📝 更新日志
 
+### 4.1.0
+
+- 适配 Pydantic V1 & V2
+- 使用 alconna 支持多平台，词库变量写法变化，新增了几个变量，不再支持 CQ 码
+
 ### 4.0.0
 
 - 完全重构插件代码，更改项目结构，使用 `pdm` 管理项目
 - 词库优化（详见 [附加词库](#附加词库)）：
   - 加载：现在可以直接往 `data/kawaii_robot` 文件夹里扔你自己的 json 词库了
   - 编写：支持了一些变量
-- 配置项的增加与修改（详见 [配置](#%EF%B8%8F-配置)）：
+- 配置项的增加与修改（详见 [配置](#⚙️-配置)）：
   - 修改 `LEAF_IGNORE`：修改类型为 `Set[str]`，配置书写方式不变
   - 修改 `LEAF_MATCH_PATTERN`：新增模式 `2`
   - 修改 `LEAF_AT_MOD`：更名为 `LEAF_NEED_AT`，修改类型为 `bool`
