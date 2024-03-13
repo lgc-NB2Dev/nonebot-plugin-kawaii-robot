@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-kawaii-robot"
-version = "4.0.0.post1"
+dynamic = ["version"]
 description = "使用 Kyomotoi/AnimeThesaurus 的 NoneBot2 的回复（文i）插件"
 authors = [
     { name = "karisaya", email = "1048827424@qq.com" },
@@ -8,8 +8,7 @@ authors = [
 ]
 dependencies = [
     "nonebot2>=2.0.0",
-    "nonebot-adapter-onebot>=2.2.0",
-    "pydantic>=1.10.4",
+    "nonebot-plugin-alconna>=0.40.1",
     "anyio>=3.7.1",
 ]
 requires-python = ">=3.8,<4.0"
