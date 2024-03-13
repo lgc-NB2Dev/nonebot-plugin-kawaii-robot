@@ -24,8 +24,14 @@ class ConfigModel(BaseModel):
     leaf_poke_rand: int = Field(20, ge=0, le=100)
     """戳一戳回复文字概率，范围 `0` ~ `100`，`-1` 关闭戳一戳回复"""
 
+    leaf_force_different_user: bool = True
+    """复读、打断复读时是否按复读的用户数计算次数"""
+
     leaf_repeater_limit: Tuple[int, int] = (2, 6)
     """触发复读或打断次数，群内复读 `{0}` ~ `{1}` 次数后触发复读或打断"""
+
+    leaf_repeat_continue: bool = False
+    """复读后，群友继续复读达到指定次数时是否继续参与复读或打断"""
 
     leaf_interrupt: int = Field(20, ge=0, le=100)
     """打断复读概率，范围 `0` ~ `100`"""

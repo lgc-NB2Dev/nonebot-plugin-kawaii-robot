@@ -1,6 +1,7 @@
 import asyncio
 import random
-from typing import Dict
+from dataclasses import dataclass, field
+from typing import Dict, Optional, Set
 
 from nonebot.adapters import Bot as BaseBot, Event as BaseEvent
 from nonebot.permission import Permission
@@ -135,9 +136,63 @@ else:
 
 # region 打断/复读姬
 
-msg_last: Dict[str, str] = {}  # 存储群内最后一条消息
-msg_times: Dict[str, int] = {}  # 存储群内最后一条消息被复读的次数
-repeater_times: Dict[str, int] = {}  # 存储随机生成的复读上限
+repeat_infos: Dict[str, "RepeatInfo"] = {}
+
+
+def random_repeat_limit():
+    return random.randint(*config.leaf_repeater_limit)
+
+
+@dataclass
+class RepeatInfo:
+    limit: int = field(default_factory=random_repeat_limit)  # 复读次数上限
+    last_msg: Optional[str] = None  # 正在复读的消息
+    repeated: int = 0  # 已经复读过的次数
+    users: Set[str] = field(default_factory=set)  # 参与复读的用户
+
+    @classmethod
+    def get(cls, group_id: str) -> "RepeatInfo":
+        if group_id not in repeat_infos:
+            repeat_infos[group_id] = (x := cls())
+            return x
+        return repeat_infos[group_id]
+
+    def count(self, user_id: str, message: str):
+        if self.last_msg != message:
+            self.last_msg = message
+            self.repeated = 1
+            self.users.clear()
+            return False
+
+        if self.repeated == 0:
+            # 在 Bot 复读 或 打断复读 后仍在复读
+            # Bot 复读后只把 repeated 设为了 0，没有把 last_msg 清空，
+            # 代表 interrupt / repeat continue 为 False
+            return False
+
+        if config.leaf_force_different_user:
+            if user_id in self.users:
+                return False
+            self.users.add(user_id)
+
+        self.repeated += 1
+        if self.repeated >= self.limit:
+            self.limit = random_repeat_limit()
+            self.repeated = 0
+            self.users.clear()
+            return True
+
+        return False
+
+    async def do_interrupt(self, bot: BaseBot, event: BaseEvent):  # noqa: ARG002
+        if config.leaf_interrupt_continue:
+            self.last_msg = None
+        await finish_multi_msg(await choice_reply_from_ev(LOADED_INTERRUPT_MSG))
+
+    async def do_repeat(self, bot: BaseBot, event: BaseEvent):
+        if config.leaf_repeat_continue:
+            self.last_msg = None
+        await (await UniMessage.generate(bot=bot, event=event)).send()
 
 
 async def repeat_rule(
@@ -146,32 +201,11 @@ async def repeat_rule(
     group_id: str = SessionId(SessionIdType.GROUP),
 ) -> bool:
     try:
-        event.get_message()
+        raw = event.get_message()
     except ValueError:
         return False
-    message = await UniMessage.generate(bot=bot, event=event)
-    message_str = repr(message)
-
-    # 复读
-    if msg_last.get(group_id) == message_str:
-        if group_id not in msg_times:
-            return False
-
-        msg_times[group_id] += 1
-        if group_id not in repeater_times:
-            repeater_times[group_id] = random.randint(*config.leaf_repeater_limit)
-
-        if msg_times[group_id] >= repeater_times[group_id]:
-            del msg_times[group_id]  # del 掉防止继续复读
-            del repeater_times[group_id]
-            return True
-
-        return False
-
-    # 不同消息，未复读
-    msg_last[group_id] = message_str
-    msg_times[group_id] = 1
-    return False
+    msg = repr(await UniMessage.generate(message=raw, bot=bot, event=event))
+    return RepeatInfo.get(group_id).count(event.get_user_id(), msg)
 
 
 async def repeater_matcher_handler(
@@ -179,19 +213,11 @@ async def repeater_matcher_handler(
     event: BaseEvent,
     group_id: str = SessionId(SessionIdType.GROUP),
 ):
-    try:
-        event.get_message()
-    except ValueError:
-        return
-
+    info = RepeatInfo.get(group_id)
     if check_percentage(config.leaf_interrupt):
-        if config.leaf_interrupt_continue:
-            # 让下次复读计入次数统计，以便再次打断或复读
-            msg_times[group_id] = 0
-
-        await finish_multi_msg(await choice_reply_from_ev(LOADED_INTERRUPT_MSG))
-
-    await (await UniMessage.generate(bot=bot, event=event)).send()
+        await info.do_interrupt(bot, event)
+    else:
+        await info.do_repeat(bot, event)
 
 
 if config.leaf_interrupt >= 0:

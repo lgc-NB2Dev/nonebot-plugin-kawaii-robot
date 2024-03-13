@@ -142,8 +142,14 @@ LEAF_REPLY_TYPE=1
 # 戳一戳回复文字概率，范围 `0` ~ `100`，`-1` 关闭戳一戳回复，`0` 代表始终戳回去
 LEAF_POKE_RAND=20
 
+# 复读、打断复读时是否按复读的用户数计算次数
+LEAF_FORCE_DIFFERENT_USER=True
+
 # 触发复读或打断次数，群内复读 `{0}` ~ `{1}` 次数后触发复读或打断
 LEAF_REPEATER_LIMIT=[2, 6]
+
+# 复读后，群友继续复读达到指定次数时是否继续参与复读或打断
+LEAF_REPEAT_CONTINUE=False
 
 # 打断概率，范围 `0` ~ `100`，`0` 关闭打断
 LEAF_INTERRUPT=20
@@ -275,6 +281,7 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 
 - 适配 Pydantic V1 & V2
 - 使用 alconna 支持多平台，词库变量写法变化，新增了几个变量，不再支持 CQ 码
+- 重写了复读的逻辑，添加配置项 `LEAF_FORCE_DIFFERENT_USER`、`LEAF_REPEAT_CONTINUE`
 
 ### 4.0.0
 
