@@ -21,7 +21,7 @@ class ConfigModel(BaseModel):
     leaf_reply_type: Literal[-1, 0, 1] = 1
     """回复模式，`-1` 关闭全部 at 回复，`0` 仅启用词库回复，`1` 开启所有回复"""
 
-    leaf_poke_rand: int = Field(20, ge=0, le=100)
+    leaf_poke_rand: int = Field(20, ge=-1, le=100)
     """戳一戳回复文字概率，范围 `0` ~ `100`，`-1` 关闭戳一戳回复"""
 
     leaf_force_different_user: bool = True
