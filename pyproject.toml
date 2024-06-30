@@ -7,14 +7,14 @@ authors = [
     { name = "student_2333", email = "lgc2333@126.com" },
 ]
 dependencies = [
-    "nonebot2>=2.0.0",
-    "nonebot-plugin-alconna>=0.40.1",
-    "nonebot-plugin-userinfo>=0.2.2",
+    "nonebot2>=2.3.1",
+    "nonebot-plugin-alconna>=0.48.0",
+    "nonebot-plugin-userinfo>=0.2.4",
     "nonebot-plugin-session>=0.3.1",
-    "cookit>=0.1.0",
-    "anyio>=3.7.1",
+    "cookit>=0.6.5",
+    "anyio>=4.4.0",
 ]
-requires-python = ">=3.8,<4.0"
+requires-python = ">=3.9,<4.0"
 readme = "README.md"
 license = { text = "AGPL-3.0" }
 
