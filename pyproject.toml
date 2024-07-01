@@ -11,7 +11,7 @@ dependencies = [
     "nonebot-plugin-alconna>=0.48.0",
     "nonebot-plugin-userinfo>=0.2.4",
     "nonebot-plugin-session>=0.3.1",
-    "cookit>=0.6.5",
+    "cookit[pydantic]>=0.6.5",
     "anyio>=4.4.0",
 ]
 requires-python = ">=3.9,<4.0"

@@ -2,7 +2,7 @@ from typing import Any, Iterable, Literal, Set, Tuple
 
 from cookit.pyd import field_validator
 from nonebot import get_plugin_config
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 ReplyPermType = Literal["ALL", "GROUP"]
 
@@ -87,7 +87,7 @@ class ConfigModel(BaseModel):
                 raise ValueError("区间左边界必须小于或等于右边界")
         return v
 
-    @validator("leaf_repeater_limit")
+    @field_validator("leaf_repeater_limit")
     def check_repeater_limit(cls, v: Tuple[int, int]):  # noqa: N805
         if v[0] < 2:
             raise ValueError("触发复读或打断次数左边界必须大于 2")

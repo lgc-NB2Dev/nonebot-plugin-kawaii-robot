@@ -56,13 +56,10 @@ async def ignore_rule(event: BaseEvent) -> bool:
         return True
 
     # 没 at，启用非 at 回复，并且概率满足
-    if (
+    return (
         # (not event.is_tome()) and
         (not config.leaf_need_at) and check_percentage(config.leaf_trigger_percent)
-    ):
-        return True
-
-    return False
+    )
 
 
 async def talk_matcher_handler(event: BaseEvent):

@@ -210,10 +210,10 @@ LEAF_LOAD_BUILTIN_SPECIAL=True
 - `{user_id}`：发送者 QQ 号
 - `{username}`：发送者昵称（获取失败则默认为 `你`）
 - `{bot_nickname}`：机器人昵称（没有设置则默认为 `可爱的咱`）
-- `{message_id}`: 消息 ID
+- `{message_id}`: 消息 ID，在戳一戳回复中为 None
 - `{segment}`：用于分割消息，该变量前的文本将会单独为一条消息发送
 - `{at}`: At 消息发送者，是 `{:At(user, user_id)}` 的简写
-- `{reply}`: 回复发送者的消息，是 `{:Reply(message_id)}` 的简写
+- `{reply}`: 回复发送者的消息，是 `{:Reply(message_id)}` 的简写，在戳一戳回复中为 None
 
 示例：
 
@@ -269,6 +269,10 @@ Telegram：[@lgc2333](https://t.me/lgc2333)
 
 ## 📝 更新日志
 
+### 4.1.1
+
+- 修复戳一戳无法正常回复
+
 ### 4.1.0
 
 - 适配 Pydantic V1 & V2
@@ -281,7 +285,7 @@ Telegram：[@lgc2333](https://t.me/lgc2333)
 - 词库优化（详见 [附加词库](#附加词库)）：
   - 加载：现在可以直接往 `data/kawaii_robot` 文件夹里扔你自己的 json 词库了
   - 编写：支持了一些变量
-- 配置项的增加与修改（详见 [配置](#⚙️-配置)）：
+- 配置项的增加与修改（详见 [配置](#⚙️-配置)）：<!-- markdownlint-disable -->
   - 修改 `LEAF_IGNORE`：修改类型为 `Set[str]`，配置书写方式不变
   - 修改 `LEAF_MATCH_PATTERN`：新增模式 `2`
   - 修改 `LEAF_AT_MOD`：更名为 `LEAF_NEED_AT`，修改类型为 `bool`

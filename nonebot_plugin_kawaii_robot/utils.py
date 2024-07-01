@@ -95,10 +95,10 @@ def get_username(info: UserInfo) -> str:
 class BuiltInVarDict(TypedDict):
     user_id: str
     username: str
-    message_id: str
+    message_id: Optional[str]
     bot_nickname: str
     at: At
-    reply: Reply
+    reply: Optional[Reply]
 
 
 def format_vars(
@@ -116,14 +116,17 @@ async def get_builtin_vars_from_ev() -> BuiltInVarDict:
     event = current_event.get()
     user_id = event.get_user_id()
     user_info = await get_user_info(bot, event, user_id)
-    message_id = UniMessage.get_message_id(event=event, bot=bot)
+    try:
+        message_id = UniMessage.get_message_id(event=event, bot=bot)
+    except Exception:
+        message_id = None
     return {
         "user_id": user_id,
         "username": get_username(user_info) if user_info else DEFAULT_USER_CALLING,
         "message_id": message_id,
         "bot_nickname": NICKNAME,
         "at": At("user", user_id),
-        "reply": Reply(message_id),
+        "reply": Reply(message_id) if message_id else None,
     }
 
 
