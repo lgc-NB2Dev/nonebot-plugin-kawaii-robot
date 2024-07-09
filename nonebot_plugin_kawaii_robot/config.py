@@ -68,6 +68,9 @@ class ConfigModel(BaseModel):
     leaf_load_builtin_special: bool = True
     """是否载入内置特殊回复词库"""
 
+    leaf_register_reload_command: bool = True
+    """是否注册 重载词库 指令"""
+
     @field_validator(
         "leaf_repeater_limit",
         "leaf_poke_action_delay",

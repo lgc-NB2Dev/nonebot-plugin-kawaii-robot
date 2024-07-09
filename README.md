@@ -184,6 +184,9 @@ LEAF_LOAD_BUILTIN_DICT=True
 
 # 是否载入内置特殊回复词库
 LEAF_LOAD_BUILTIN_SPECIAL=True
+
+# 是否注册 重载词库 指令
+LEAF_REGISTER_RELOAD_COMMAND=True
 ```
 
 ### 附加词库
@@ -268,6 +271,10 @@ Telegram：[@lgc2333](https://t.me/lgc2333)
 感谢大家的赞助！你们的赞助将是我继续创作的动力！
 
 ## 📝 更新日志
+
+### 4.1.2
+
+- 添加配置项 `LEAF_REGISTER_RELOAD_COMMAND`，注册 `重载词库` 指令用于词库热重载
 
 ### 4.1.1
 

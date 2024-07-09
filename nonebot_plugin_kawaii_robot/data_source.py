@@ -120,16 +120,19 @@ async def async_load_list_json(
     return True
 
 
+def clear_replies():
+    LOADED_REPLY_DICT.clear()
+    LOADED_HELLO_REPLY.clear()
+    LOADED_POKE_REPLY.clear()
+    LOADED_UNKNOWN_REPLY.clear()
+
+
 async def reload_replies():
     """
     重新载入词库
     """
 
-    LOADED_REPLY_DICT.clear()
-    LOADED_HELLO_REPLY.clear()
-    LOADED_POKE_REPLY.clear()
-    LOADED_UNKNOWN_REPLY.clear()
-    LOADED_INTERRUPT_MSG.clear()
+    clear_replies()
 
     logger.info("正在载入自定义词库...")
     await asyncio.gather(

@@ -3,8 +3,9 @@ import random
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Set
 
+from nonebot import logger, on_command
 from nonebot.adapters import Bot as BaseBot, Event as BaseEvent
-from nonebot.permission import Permission
+from nonebot.permission import SUPERUSER, Permission
 from nonebot.plugin.on import on_message, on_notice
 from nonebot.rule import Rule, to_me
 from nonebot_plugin_alconna.uniseg import UniMessage
@@ -22,6 +23,8 @@ from .data_source import (
     LOADED_POKE_REPLY,
     LOADED_REPLY_DICT,
     LOADED_UNKNOWN_REPLY,
+    clear_replies,
+    reload_replies,
 )
 from .utils import (
     check_percentage,
@@ -220,5 +223,27 @@ async def repeater_matcher_handler(
 if config.leaf_interrupt >= 0:
     repeater = on_message(rule=repeat_rule, permission=GROUP, priority=99, block=False)
     repeater.handle()(repeater_matcher_handler)
+
+# endregion
+
+
+# region 重载
+
+
+async def reload_replies_handler():
+    try:
+        await reload_replies()
+    except Exception:
+        clear_replies()
+        logger.exception("Error when reload replies")
+        await UniMessage.text("重载失败了呜喵，看起来咱被玩坏了喵").send()
+    else:
+        await UniMessage.text("重载回复词库完成了喵~").send()
+
+
+if config.leaf_register_reload_command:
+    matcher_reload_data = on_command("重载词库", permission=SUPERUSER)
+    matcher_reload_data.handle()(reload_replies_handler)
+
 
 # endregion
