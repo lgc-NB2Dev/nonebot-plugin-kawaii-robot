@@ -7,12 +7,12 @@ authors = [
     { name = "LgCookie", email = "lgc2333@126.com" },
 ]
 dependencies = [
-    "nonebot2>=2.3.1",
-    "nonebot-plugin-alconna>=0.48.0",
-    "nonebot-plugin-userinfo>=0.2.4",
-    "nonebot-plugin-session>=0.3.1",
-    "cookit[pydantic]>=0.6.5",
-    "anyio>=4.4.0",
+    "nonebot2>=2.4.1",
+    "nonebot-plugin-alconna>=0.54.2",
+    "nonebot-plugin-userinfo>=0.2.6",
+    "nonebot-plugin-session>=0.3.2",
+    "cookit[pydantic]>=0.9.3",
+    "anyio>=4.8.0",
 ]
 requires-python = ">=3.9,<4.0"
 readme = "README.md"
