@@ -1,10 +1,11 @@
 import asyncio
 import random
 import re
-from typing import Iterable, List, Optional, TypedDict
+from collections.abc import Iterable
+from typing import Optional, TypedDict
 
 from nonebot.matcher import current_bot, current_event, current_matcher
-from nonebot_plugin_alconna.uniseg import At, Reply, UniMessage
+from nonebot_plugin_alconna.uniseg import At, Reply, UniMessage, get_message_id
 from nonebot_plugin_userinfo import UserInfo, get_user_info
 
 from .config import config
@@ -16,11 +17,9 @@ SEG_REGEX = re.compile(r"(?P<h>[^\{])" + re.escape(SEG_SAMPLE) + r"(?P<t>[^\}])"
 DEFAULT_USER_CALLING = "你"
 
 
-def split_seg(text: str) -> List[str]:
-    if text.startswith(SEG_SAMPLE):
-        text = text[len(SEG_SAMPLE) :]
-    if text.endswith(SEG_SAMPLE):
-        text = text[: -len(SEG_SAMPLE)]
+def split_seg(text: str) -> list[str]:
+    text = text.removeprefix(SEG_SAMPLE)
+    text = text.removesuffix(SEG_SAMPLE)
 
     results = list(re.finditer(SEG_REGEX, text))
     if not results:
@@ -42,7 +41,7 @@ def split_seg(text: str) -> List[str]:
     return parts
 
 
-def flatten_list(li: Iterable[Iterable[str]]) -> List[str]:
+def flatten_list(li: Iterable[Iterable[str]]) -> list[str]:
     """
     展平二维列表
     """
@@ -59,7 +58,7 @@ def full_to_half(text: str) -> str:
     )
 
 
-def search_reply_dict(reply_dict: ReplyDictType, text: str) -> Optional[List[str]]:
+def search_reply_dict(reply_dict: ReplyDictType, text: str) -> Optional[list[str]]:
     """
     在词库中搜索回复
     """
@@ -105,7 +104,7 @@ def format_vars(
     string: str,
     builtin: BuiltInVarDict,
     **extra,
-) -> List[UniMessage]:
+) -> list[UniMessage]:
     return [
         UniMessage.template(seg).format(**builtin, **extra) for seg in split_seg(string)
     ]
@@ -117,7 +116,7 @@ async def get_builtin_vars_from_ev() -> BuiltInVarDict:
     user_id = event.get_user_id()
     user_info = await get_user_info(bot, event, user_id)
     try:
-        message_id = UniMessage.get_message_id(event=event, bot=bot)
+        message_id = get_message_id(event=event, bot=bot)
     except Exception:
         message_id = None
     return {
@@ -130,7 +129,7 @@ async def get_builtin_vars_from_ev() -> BuiltInVarDict:
     }
 
 
-async def choice_reply_from_ev(reply_list: List[str], **kwargs) -> List[UniMessage]:
+async def choice_reply_from_ev(reply_list: list[str], **kwargs) -> list[UniMessage]:
     """
     从提供的回复列表中随机选择一条回复并格式化
     """
@@ -152,7 +151,7 @@ def check_percentage(need_percent: float, percentage: Optional[float] = None) ->
     return percentage <= need_percent
 
 
-async def finish_multi_msg(msg_list: List[UniMessage]):
+async def finish_multi_msg(msg_list: list[UniMessage]):
     first_msg = msg_list.pop(0)
     await first_msg.send()
 

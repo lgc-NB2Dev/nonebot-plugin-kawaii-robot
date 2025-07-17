@@ -1,4 +1,5 @@
-from typing import Any, Iterable, Literal, Set, Tuple
+from collections.abc import Iterable
+from typing import Any, Literal
 
 from cookit.pyd import field_validator
 from nonebot import get_plugin_config
@@ -8,14 +9,14 @@ ReplyPermType = Literal["ALL", "GROUP"]
 
 
 class ConfigModel(BaseModel):
-    nickname: Set[str]
+    nickname: set[str]
 
     is_lagrange: bool = False
 
     leaf_permission: ReplyPermType = "ALL"
     """词库回复权限，`ALL` 就是全部聊天都会触发回复，`GROUP` 就是仅群聊"""
 
-    leaf_ignore: Set[str] = set()
+    leaf_ignore: set[str] = set()
     """忽略词，指令以本 Set 中的元素开头不会触发词库回复"""
 
     leaf_reply_type: Literal[-1, 0, 1] = 1
@@ -27,7 +28,7 @@ class ConfigModel(BaseModel):
     leaf_force_different_user: bool = True
     """复读、打断复读时是否按复读的用户数计算次数"""
 
-    leaf_repeater_limit: Tuple[int, int] = (2, 6)
+    leaf_repeater_limit: tuple[int, int] = (2, 6)
     """触发复读或打断次数，群内复读 `{0}` ~ `{1}` 次数后触发复读或打断"""
 
     leaf_repeat_continue: bool = False
@@ -56,10 +57,10 @@ class ConfigModel(BaseModel):
     leaf_trigger_percent: int = Field(5, ge=0, le=100)
     """词库回复非 `to_me` 时的触发概率，范围 `0` ~ `100`"""
 
-    leaf_poke_action_delay: Tuple[float, float] = (0.5, 1.5)
+    leaf_poke_action_delay: tuple[float, float] = (0.5, 1.5)
     """戳一戳回复延时，单位秒"""
 
-    leaf_multi_reply_delay: Tuple[float, float] = (1.0, 3.0)
+    leaf_multi_reply_delay: tuple[float, float] = (1.0, 3.0)
     """当回复存在多条消息时，发送消息的间隔时间，单位秒"""
 
     leaf_load_builtin_dict: bool = True
@@ -91,7 +92,7 @@ class ConfigModel(BaseModel):
         return v
 
     @field_validator("leaf_repeater_limit")
-    def check_repeater_limit(cls, v: Tuple[int, int]):  # noqa: N805
+    def check_repeater_limit(cls, v: tuple[int, int]):  # noqa: N805
         if v[0] < 2:
             raise ValueError("触发复读或打断次数左边界必须大于 2")
         return v

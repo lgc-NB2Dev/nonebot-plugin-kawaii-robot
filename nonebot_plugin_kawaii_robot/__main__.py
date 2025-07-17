@@ -1,7 +1,7 @@
 import asyncio
 import random
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Set
+from typing import Optional
 
 from nonebot import logger, on_command
 from nonebot.adapters import Bot as BaseBot, Event as BaseEvent
@@ -136,7 +136,7 @@ else:
 
 # region 打断/复读姬
 
-repeat_infos: Dict[str, "RepeatInfo"] = {}
+repeat_infos: dict[str, "RepeatInfo"] = {}
 
 
 def random_repeat_limit():
@@ -148,7 +148,7 @@ class RepeatInfo:
     limit: int = field(default_factory=random_repeat_limit)  # 复读次数上限
     last_msg: Optional[str] = None  # 正在复读的消息
     repeated: int = 0  # 已经复读过的次数
-    users: Set[str] = field(default_factory=set)  # 参与复读的用户
+    users: set[str] = field(default_factory=set)  # 参与复读的用户
 
     @classmethod
     def get(cls, group_id: str) -> "RepeatInfo":

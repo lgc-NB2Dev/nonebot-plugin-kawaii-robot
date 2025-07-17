@@ -281,6 +281,10 @@ Telegram：[@lgc2333](https://t.me/lgc2333)
 
 ## 📝 更新日志
 
+### 4.1.3
+
+- 兼容 alconna 0.59
+
 ### 4.1.2
 
 - 添加配置项 `LEAF_REGISTER_RELOAD_COMMAND`，注册 `重载词库` 指令用于词库热重载

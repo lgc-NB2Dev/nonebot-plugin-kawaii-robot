@@ -1,6 +1,5 @@
 import asyncio
 from pathlib import Path
-from typing import List, Tuple
 
 import anyio
 from nonebot import get_driver
@@ -41,10 +40,10 @@ for _path in (
         _path.write_text("[]", encoding="u8")
 
 LOADED_REPLY_DICT: ReplyDictType = {}
-LOADED_HELLO_REPLY: List[str] = []
-LOADED_POKE_REPLY: List[str] = []
-LOADED_UNKNOWN_REPLY: List[str] = []
-LOADED_INTERRUPT_MSG: List[str] = []
+LOADED_HELLO_REPLY: list[str] = []
+LOADED_POKE_REPLY: list[str] = []
+LOADED_UNKNOWN_REPLY: list[str] = []
+LOADED_INTERRUPT_MSG: list[str] = []
 
 
 def sort_my_dict(my_dict: ReplyDictType):
@@ -70,7 +69,7 @@ def merge_reply_dict(target: ReplyDictType, source: ReplyDictType):
             target.update({key: source[key]})
 
 
-async def load_reply_json(load_path: Path) -> Tuple[int, int]:
+async def load_reply_json(load_path: Path) -> tuple[int, int]:
     """
     载入词库
     """
@@ -101,7 +100,7 @@ async def load_reply_json(load_path: Path) -> Tuple[int, int]:
 
 
 async def async_load_list_json(
-    merge_target: List[str],
+    merge_target: list[str],
     json_path: Path,
 ) -> bool:
     """

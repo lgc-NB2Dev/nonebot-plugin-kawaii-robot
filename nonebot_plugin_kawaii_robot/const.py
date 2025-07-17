@@ -1,8 +1,6 @@
-from typing import Dict, List
-
 from .config import config
 
-ReplyDictType = Dict[str, List[str]]
+ReplyDictType = dict[str, list[str]]
 
 NICKNAME = next(iter(config.nickname)) if config.nickname else "可爱的咱"
 
