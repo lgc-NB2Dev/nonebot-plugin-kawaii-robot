@@ -79,7 +79,7 @@ class ConfigModel(BaseModel):
         mode="before",
     )
     def check_interval(cls, v: Any):  # noqa: N805
-        if isinstance(v, (int, float)):
+        if isinstance(v, int | float):
             v = (v, v)
         else:
             if not isinstance(v, Iterable):

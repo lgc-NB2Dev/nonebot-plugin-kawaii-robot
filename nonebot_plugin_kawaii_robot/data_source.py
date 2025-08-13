@@ -1,16 +1,10 @@
 import asyncio
+import json
 from pathlib import Path
 
 import anyio
 from nonebot import get_driver
 from nonebot.log import logger
-
-from .utils import flatten_list, full_to_half
-
-try:
-    import ujson as json
-except ModuleNotFoundError:
-    import json
 
 from .config import config
 from .const import (
@@ -20,6 +14,7 @@ from .const import (
     BUILTIN_UNKNOWN_REPLY,
     ReplyDictType,
 )
+from .utils import flatten_list, full_to_half
 
 BUILTIN_REPLY_PATH = Path(__file__).parent / "resource"
 ADDITIONAL_REPLY_PATH = Path.cwd() / "data" / "kawaii_robot"

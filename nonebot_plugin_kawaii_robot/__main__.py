@@ -1,20 +1,14 @@
 import asyncio
 import random
 from dataclasses import dataclass, field
-from typing import Optional
 
 from nonebot import logger, on_command
-from nonebot.adapters import Bot as BaseBot, Event as BaseEvent
-from nonebot.permission import SUPERUSER, Permission
+from nonebot.adapters import Event as BaseEvent, Message as BaseMessage
+from nonebot.permission import SUPERUSER
 from nonebot.plugin.on import on_message, on_notice
 from nonebot.rule import Rule, to_me
 from nonebot_plugin_alconna.uniseg import UniMessage
-from nonebot_plugin_session import (
-    SessionId,
-    SessionIdType,
-    SessionLevel,
-    extract_session,
-)
+from nonebot_plugin_uninfo import GROUP, GUILD, Session, Uninfo
 
 from .config import config
 from .data_source import (
@@ -32,14 +26,6 @@ from .utils import (
     finish_multi_msg,
     search_reply_dict,
 )
-
-
-async def group_perm(bot: BaseBot, event: BaseEvent) -> bool:
-    ss = extract_session(bot, event)
-    return ss.level >= SessionLevel.LEVEL2
-
-
-GROUP = Permission(group_perm)
 
 # region 词库回复
 
@@ -65,24 +51,24 @@ async def ignore_rule(event: BaseEvent) -> bool:
     )
 
 
-async def talk_matcher_handler(event: BaseEvent):
+async def talk_matcher_handler(event: BaseEvent, ss: Uninfo):
     msg = event.get_plaintext().strip()
 
     # 如果是光艾特 bot (没消息返回)，就回复以下内容
     if (not msg) and event.is_tome():
-        await finish_multi_msg(await choice_reply_from_ev(LOADED_HELLO_REPLY))
+        await finish_multi_msg(await choice_reply_from_ev(ss, LOADED_HELLO_REPLY))
 
     # 从词库中获取回复
     if reply_list := search_reply_dict(LOADED_REPLY_DICT, msg):
-        await finish_multi_msg(await choice_reply_from_ev(reply_list))
+        await finish_multi_msg(await choice_reply_from_ev(ss, reply_list))
 
     # 不明白的内容，开启所有回复并 @bot 才会回复
     if event.is_tome() and config.leaf_reply_type == 1:
-        await finish_multi_msg(await choice_reply_from_ev(LOADED_UNKNOWN_REPLY))
+        await finish_multi_msg(await choice_reply_from_ev(ss, LOADED_UNKNOWN_REPLY))
 
 
 if config.leaf_reply_type >= 0:
-    DICT_REPLY_PERM = GROUP if config.leaf_permission == "GROUP" else None
+    DICT_REPLY_PERM = GROUP | GUILD if config.leaf_permission == "GROUP" else None
     talk = on_message(
         rule=Rule(ignore_rule) & (to_me() if config.leaf_need_at else None),
         permission=DICT_REPLY_PERM,
@@ -116,12 +102,12 @@ else:
         else:
             await bot.send(event, OBV11Seg("poke", {"qq": event.user_id}))
 
-    async def poke_matcher_handler(bot: OBV11Bot, event: PokeNotifyEvent):
+    async def poke_matcher_handler(bot: OBV11Bot, event: PokeNotifyEvent, ss: Uninfo):
         await asyncio.sleep(random.uniform(*config.leaf_poke_action_delay))
 
         if check_percentage(config.leaf_poke_rand):
             await finish_multi_msg(
-                await choice_reply_from_ev(LOADED_POKE_REPLY),
+                await choice_reply_from_ev(ss, LOADED_POKE_REPLY),
             )
 
         await send_poke(bot, event)
@@ -146,16 +132,16 @@ def random_repeat_limit():
 @dataclass
 class RepeatInfo:
     limit: int = field(default_factory=random_repeat_limit)  # 复读次数上限
-    last_msg: Optional[str] = None  # 正在复读的消息
+    last_msg: str | None = None  # 正在复读的消息
     repeated: int = 0  # 已经复读过的次数
     users: set[str] = field(default_factory=set)  # 参与复读的用户
 
     @classmethod
-    def get(cls, group_id: str) -> "RepeatInfo":
-        if group_id not in repeat_infos:
-            repeat_infos[group_id] = (x := cls())
+    def get(cls, scene_id: str) -> "RepeatInfo":
+        if scene_id not in repeat_infos:
+            repeat_infos[scene_id] = (x := cls())
             return x
-        return repeat_infos[group_id]
+        return repeat_infos[scene_id]
 
     def count(self, user_id: str, message: str):
         if self.last_msg != message:
@@ -184,44 +170,41 @@ class RepeatInfo:
 
         return False
 
-    async def do_interrupt(self, bot: BaseBot, event: BaseEvent):  # noqa: ARG002
+    async def do_interrupt(self, ss: Session):  # noqa: ARG002
         if config.leaf_interrupt_continue:
             self.last_msg = None
-        await finish_multi_msg(await choice_reply_from_ev(LOADED_INTERRUPT_MSG))
+        await finish_multi_msg(await choice_reply_from_ev(ss, LOADED_INTERRUPT_MSG))
 
-    async def do_repeat(self, bot: BaseBot, event: BaseEvent):
+    async def do_repeat(self, msg: BaseMessage):
         if config.leaf_repeat_continue:
             self.last_msg = None
-        await (await UniMessage.generate(bot=bot, event=event)).send()
+        await (await UniMessage.of(msg).attach_reply()).send()
 
 
-async def repeat_rule(
-    bot: BaseBot,
-    event: BaseEvent,
-    group_id: str = SessionId(SessionIdType.GROUP),
-) -> bool:
+async def repeat_rule(event: BaseEvent, ss: Uninfo) -> bool:
     try:
         raw = event.get_message()
     except ValueError:
         return False
-    msg = repr(await UniMessage.generate(message=raw, bot=bot, event=event))
-    return RepeatInfo.get(group_id).count(event.get_user_id(), msg)
+    msg = repr(UniMessage.of(raw))
+    return RepeatInfo.get(ss.scene_path).count(event.get_user_id(), msg)
 
 
-async def repeater_matcher_handler(
-    bot: BaseBot,
-    event: BaseEvent,
-    group_id: str = SessionId(SessionIdType.GROUP),
-):
-    info = RepeatInfo.get(group_id)
+async def repeater_matcher_handler(event: BaseEvent, ss: Uninfo):
+    info = RepeatInfo.get(ss.id)
     if check_percentage(config.leaf_interrupt):
-        await info.do_interrupt(bot, event)
+        await info.do_interrupt(ss)
     else:
-        await info.do_repeat(bot, event)
+        await info.do_repeat(event.get_message())
 
 
 if config.leaf_interrupt >= 0:
-    repeater = on_message(rule=repeat_rule, permission=GROUP, priority=99, block=False)
+    repeater = on_message(
+        rule=repeat_rule,
+        permission=GROUP | GUILD,
+        priority=99,
+        block=False,
+    )
     repeater.handle()(repeater_matcher_handler)
 
 # endregion

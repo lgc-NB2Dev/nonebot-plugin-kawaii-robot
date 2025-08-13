@@ -2,11 +2,11 @@ import asyncio
 import random
 import re
 from collections.abc import Iterable
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from nonebot.matcher import current_bot, current_event, current_matcher
 from nonebot_plugin_alconna.uniseg import At, Reply, UniMessage, get_message_id
-from nonebot_plugin_userinfo import UserInfo, get_user_info
+from nonebot_plugin_uninfo import Member, Session, User
 
 from .config import config
 from .const import NICKNAME, ReplyDictType
@@ -58,7 +58,7 @@ def full_to_half(text: str) -> str:
     )
 
 
-def search_reply_dict(reply_dict: ReplyDictType, text: str) -> Optional[list[str]]:
+def search_reply_dict(reply_dict: ReplyDictType, text: str) -> list[str] | None:
     """
     在词库中搜索回复
     """
@@ -77,7 +77,7 @@ def search_reply_dict(reply_dict: ReplyDictType, text: str) -> Optional[list[str
     return flatten_list(list(generator)) or None
 
 
-def format_sender_username(username: Optional[str]) -> str:
+def format_sender_username(username: str | None) -> str:
     """
     格式化发送者的昵称，如果昵称过长则截断
     """
@@ -87,17 +87,21 @@ def format_sender_username(username: Optional[str]) -> str:
     return username
 
 
-def get_username(info: UserInfo) -> str:
-    return format_sender_username(info.user_displayname or info.user_name or "你")
+def get_username(info: User | Member) -> str:
+    if isinstance(info, Member):
+        if info.nick:
+            return format_sender_username(info.nick)
+        info = info.user
+    return format_sender_username(info.nick or info.name or "你")
 
 
 class BuiltInVarDict(TypedDict):
     user_id: str
     username: str
-    message_id: Optional[str]
+    message_id: str | None
     bot_nickname: str
     at: At
-    reply: Optional[Reply]
+    reply: Reply | None
 
 
 def format_vars(
@@ -110,18 +114,17 @@ def format_vars(
     ]
 
 
-async def get_builtin_vars_from_ev() -> BuiltInVarDict:
+async def get_builtin_vars_from_ev(ss: Session) -> BuiltInVarDict:
     bot = current_bot.get()
     event = current_event.get()
     user_id = event.get_user_id()
-    user_info = await get_user_info(bot, event, user_id)
     try:
         message_id = get_message_id(event=event, bot=bot)
     except Exception:
         message_id = None
     return {
         "user_id": user_id,
-        "username": get_username(user_info) if user_info else DEFAULT_USER_CALLING,
+        "username": get_username(ss.member or ss.user),
         "message_id": message_id,
         "bot_nickname": NICKNAME,
         "at": At("user", user_id),
@@ -129,15 +132,19 @@ async def get_builtin_vars_from_ev() -> BuiltInVarDict:
     }
 
 
-async def choice_reply_from_ev(reply_list: list[str], **kwargs) -> list[UniMessage]:
+async def choice_reply_from_ev(
+    ss: Session,
+    reply_list: list[str],
+    **kwargs,
+) -> list[UniMessage]:
     """
     从提供的回复列表中随机选择一条回复并格式化
     """
     raw_reply = random.choice(reply_list)
-    return format_vars(raw_reply, await get_builtin_vars_from_ev(), **kwargs)
+    return format_vars(raw_reply, await get_builtin_vars_from_ev(ss), **kwargs)
 
 
-def check_percentage(need_percent: float, percentage: Optional[float] = None) -> bool:
+def check_percentage(need_percent: float, percentage: float | None = None) -> bool:
     """
     检查概率
     """
