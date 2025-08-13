@@ -1,10 +1,12 @@
 import asyncio
 import json
+import shutil
 from pathlib import Path
 
 import anyio
 from nonebot import get_driver
 from nonebot.log import logger
+from nonebot_plugin_localstore import get_plugin_config_dir
 
 from .config import config
 from .const import (
@@ -16,15 +18,29 @@ from .const import (
 )
 from .utils import flatten_list, full_to_half
 
-BUILTIN_REPLY_PATH = Path(__file__).parent / "resource"
-ADDITIONAL_REPLY_PATH = Path.cwd() / "data" / "kawaii_robot"
-ADDITIONAL_HELLO_REPLY_PATH = ADDITIONAL_REPLY_PATH / "_hello.json"
-ADDITIONAL_POKE_REPLY_PATH = ADDITIONAL_REPLY_PATH / "_poke.json"
-ADDITIONAL_UNKNOWN_REPLY_PATH = ADDITIONAL_REPLY_PATH / "_unknown.json"
-ADDITIONAL_INTERRUPT_MSG_PATH = ADDITIONAL_REPLY_PATH / "_interrupt.json"
+config_path = get_plugin_config_dir()
 
-if not ADDITIONAL_REPLY_PATH.exists():
-    ADDITIONAL_REPLY_PATH.mkdir(parents=True)
+OLD_ADDITIONAL_REPLY_PATH = Path.cwd() / "data" / "kawaii_robot"
+if OLD_ADDITIONAL_REPLY_PATH.exists():
+    if next(config_path.iterdir(), None) is not None:
+        logger.warning("旧词库存储路径已失效，因新路径内已有文件，请手动迁移")
+    else:
+        try:
+            config_path.rmdir()
+            shutil.copytree(OLD_ADDITIONAL_REPLY_PATH, config_path)
+            shutil.rmtree(OLD_ADDITIONAL_REPLY_PATH)
+        except Exception:
+            logger.error("词库文件迁移失败")
+            raise
+        else:
+            logger.success("词库文件已迁移到 localstore 下的新目录")
+
+BUILTIN_REPLY_PATH = Path(__file__).parent / "resource"
+ADDITIONAL_HELLO_REPLY_PATH = config_path / "_hello.json"
+ADDITIONAL_POKE_REPLY_PATH = config_path / "_poke.json"
+ADDITIONAL_UNKNOWN_REPLY_PATH = config_path / "_unknown.json"
+ADDITIONAL_INTERRUPT_MSG_PATH = config_path / "_interrupt.json"
+
 for _path in (
     ADDITIONAL_HELLO_REPLY_PATH,
     ADDITIONAL_POKE_REPLY_PATH,
@@ -130,7 +146,7 @@ async def reload_replies():
 
     logger.info("正在载入自定义词库...")
     await asyncio.gather(
-        load_reply_json(ADDITIONAL_REPLY_PATH),
+        load_reply_json(config_path),
         async_load_list_json(LOADED_HELLO_REPLY, ADDITIONAL_HELLO_REPLY_PATH),
         async_load_list_json(LOADED_POKE_REPLY, ADDITIONAL_POKE_REPLY_PATH),
         async_load_list_json(LOADED_UNKNOWN_REPLY, ADDITIONAL_UNKNOWN_REPLY_PATH),
