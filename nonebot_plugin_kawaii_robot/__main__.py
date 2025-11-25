@@ -3,7 +3,7 @@ import random
 from dataclasses import dataclass, field
 
 from nonebot import logger, on_command
-from nonebot.adapters import Event as BaseEvent, Message as BaseMessage
+from nonebot.adapters import Bot as BaseBot, Event as BaseEvent, Message as BaseMessage
 from nonebot.permission import SUPERUSER
 from nonebot.plugin.on import on_message, on_notice
 from nonebot.rule import Rule, to_me
@@ -181,12 +181,12 @@ class RepeatInfo:
         await (await UniMessage.of(msg).attach_reply()).send()
 
 
-async def repeat_rule(event: BaseEvent, ss: Uninfo) -> bool:
+async def repeat_rule(bot: BaseBot, event: BaseEvent, ss: Uninfo) -> bool:
     try:
         raw = event.get_message()
     except ValueError:
         return False
-    msg = repr(UniMessage.of(raw))
+    msg = repr(UniMessage.of(raw, bot=bot))
     return RepeatInfo.get(ss.scene_path).count(event.get_user_id(), msg)
 
 

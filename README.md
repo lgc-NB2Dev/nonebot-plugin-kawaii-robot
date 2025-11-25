@@ -281,9 +281,13 @@ Telegram：[@lgc2333](https://t.me/lgc2333)
 
 ## 📝 更新日志
 
+### 4.1.5
+
+- 修复 [#26](https://github.com/lgc-NB2Dev/nonebot-plugin-kawaii-robot/issues/26)
+
 ### 4.1.4
 
-- 丢掉就依赖
+- 丢掉旧依赖
 - 迁移到 localstore
 
 ### 4.1.3
